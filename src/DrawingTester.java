@@ -9,7 +9,7 @@ public class DrawingTester {
         JFrame f = new JFrame();
         DrawingCanvas dc = new DrawingCanvas(w, h);
         f.setSize(w, h);
-        f.setTitle("drawing in java");
+        f.setTitle("Visualization");
         f.add(dc);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.setVisible(true);
