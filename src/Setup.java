@@ -1,14 +1,23 @@
-public class Setup {
-    public static void main(int b, Point t) {
-        // Example input values
-        int boundary = b;
-        Point target = t;
-        runSetup(boundary, target.getX(), target.getY());
-    }
+import javax.swing.*;
 
-    public static void runSetup(int boundary, double x, double y) {
-        Point target = new Point(x, y);
-        System.out.println("Boundary: " + boundary);
-        System.out.println("Target position: " + target.getX() + ", " + target.getY());
+public class Setup {
+    public static  void main(Point target) {
+        // Example input values
+
+        int w = 1400;
+        int h = 1000;
+        Point t = new Point(700, 500);
+        Segment[] obstacles = { 
+        new Segment(new Point(600, 600), new Point(700, 700)),
+        new Segment(new Point(100, 100), new Point(240, 610)),
+        new Segment(new Point(639, 367), new Point(673, 749))};
+
+        JFrame f = new JFrame();
+        DrawingCanvas dc = new DrawingCanvas(w, h, t, obstacles);
+        f.setSize(w, h);
+        f.setTitle("Visualization");
+        f.add(dc);
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.setVisible(true);
     }
 }
