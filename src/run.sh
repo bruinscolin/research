@@ -1,2 +1,2 @@
 #!/bin/bash
-javac *.java && java DrawingTester
+javac *.java && java App
