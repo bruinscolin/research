@@ -65,6 +65,7 @@ public class DrawingCanvas extends JComponent {
             g2d.setColor(Color.BLUE);
             g2d.draw(line);
         }
+        g2d.setStroke(new BasicStroke(1));
 
         // Circle, x and y coordniates where the rectagnluar border starts
         // X height and Y height of the circle
