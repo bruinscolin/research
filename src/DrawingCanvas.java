@@ -22,6 +22,12 @@ public class DrawingCanvas extends JComponent {
     protected  void paintComponent(Graphics g) { 
         Graphics2D g2d = (Graphics2D) g; // cast to Graphics2D
 
+        // smooth edges for diagonal lines
+        RenderingHints rh = new RenderingHints(
+            RenderingHints.KEY_ANTIALIASING, 
+            RenderingHints.VALUE_ANTIALIAS_ON);
+
+        g2d.setRenderingHints(rh);
         // Line2D.Double line = new Line2D.Double(0, 0, width, height); // create a line
         Rectangle2D.Double r = new Rectangle2D.Double(0, 0, width, height); // create a rectangle
         g2d.setColor(new Color(162, 169, 186));
