@@ -1,3 +1,8 @@
+// visit https://users.csc.calpoly.edu/~kteo/pub/cgta21_1.pdf 
+// to see the original paper
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class App {
     public static void main(String[] args) throws Exception {
@@ -13,9 +18,39 @@ public class App {
             new Segment(new Point(470, 625), new Point(600, 750)),
             new Segment(new Point(400, 650), new Point(450, 550))
         };
-        Setup.main(target, obstacles);
+        DrawingCanvas dc = Setup.main(target, obstacles);
+        algo(target, obstacles, dc);
+        
+        
+    }
 
-        
-        
+    public static void algo(Point t, Segment[] o, DrawingCanvas dc) {
+
+        // setup before step 1
+        List<Point> endpoints = new ArrayList<>(); // V in the context of the paper
+
+        for (Segment s: o) { // populates endpoints
+            endpoints.add(s.getP1());
+            endpoints.add(s.getP2());
+        }
+
+
+        // Each ray originates at v and passes through a point u ∈ V \ {v}
+        for (int i = 0; i < endpoints.size(); i++) {
+
+            for (int j = i + 1; j < endpoints.size(); j++){
+                Point u = endpoints.get(i);
+                Point v = endpoints.get(j);
+                
+                u.print(); 
+                v.print(); 
+
+            }
+            
+        }
+    }
+
+    public static void A1(Point t, Segment[] o, DrawingCanvas dc) {
+
     }
 }
