@@ -27,4 +27,10 @@ public class Ray {
     public double getY() {
         return origin.getY();
     } 
+
+    public boolean intersectsLines(Segment[] s){
+
+        return true;
+    }
+
 }
