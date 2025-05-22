@@ -34,6 +34,8 @@ public class App {
             endpoints.add(s.getP2());
         }
 
+        
+
 
         // Each ray originates at v and passes through a point u ∈ V \ {v}
         for (int i = 0; i < endpoints.size(); i++) {
@@ -41,6 +43,7 @@ public class App {
             for (int j = i + 1; j < endpoints.size(); j++){
                 Point u = endpoints.get(i);
                 Point v = endpoints.get(j);
+                
                 
                 u.print(); 
                 v.print(); 
