@@ -38,5 +38,25 @@ public class Segment{
         return p2.getY();
     }
 
+    // get drawing coordinates of endpoints
+    // only used for visualization, not algo logic
+
+
+    public double getDrX1() {
+        return p1.getDrX();
+    }
+
+    public double getDrY1() {
+        return p1.getDrY();
+    }
+
+    public double getDrX2() {
+        return p2.getDrX();
+    }
+
+    public double getDrY2() {
+        return p2.getDrY();
+    }
+
 }
 

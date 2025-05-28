@@ -22,6 +22,8 @@ public class DrawingCanvas extends JComponent {
     protected  void paintComponent(Graphics g) { 
         Graphics2D g2d = (Graphics2D) g; // cast to Graphics2D
 
+        Color hot_pink = new Color(255, 0, 195);
+
         // smooth edges for diagonal lines
         RenderingHints rh = new RenderingHints(
             RenderingHints.KEY_ANTIALIASING, 
@@ -34,38 +36,63 @@ public class DrawingCanvas extends JComponent {
         g2d.fill(r);
 
         // X axis
-        Line2D.Double x_axis = new Line2D.Double(0, height / 2, 50, height / 2);
+        Line2D.Double drawing_x_axis = new Line2D.Double(0, height / 2, 50, height / 2);
         g2d.setColor(Color.BLACK);
-        g2d.draw(x_axis);
+        g2d.draw(drawing_x_axis);
 
 
-        String x_label = String.valueOf(height / 2);
-        g2d.drawString(x_label, 50, height / 2 + 15);
+        String drawing_x_label = String.valueOf(height / 2);
+        g2d.drawString(drawing_x_label, 50, height / 2 + 15);
 
+
+        Line2D.Double logic_x_axis = new Line2D.Double(50, height / 2, 100, height / 2);
+        g2d.setColor(hot_pink);
+        g2d.draw(logic_x_axis);
+
+
+        String logic_x_label = String.valueOf(0);
+        g2d.drawString(logic_x_label, 100, height / 2 - 15);
+        g2d.setColor(Color.BLACK);
 
         // Y axis
-        Line2D.Double y_axis = new Line2D.Double(width / 2, 0, width / 2, 50);
-        g2d.draw(y_axis);
+        Line2D.Double drawing_y_axis = new Line2D.Double(width / 2, 0, width / 2, 50);
+        g2d.draw(drawing_y_axis);
 
 
-        String y_label = String.valueOf(width / 2);
-        g2d.drawString(y_label, width / 2 + 15, 50);
+        String drawing_y_label = String.valueOf(width / 2);
+        g2d.drawString(drawing_y_label, width / 2 + 15, 50);
+
+
+
+        Line2D.Double logic_y_axis = new Line2D.Double(width / 2, 50, width / 2, 100);
+        g2d.setColor(hot_pink);
+        g2d.draw(logic_y_axis);
+
+
+        String logic_y_label = String.valueOf(0);
+        g2d.drawString(logic_y_label, width / 2 - 15, 100);
+
+
+        // circle test
+        drawEllipseFromCenter( t.getDrX(), t.getDrY(), 78, 78, g2d, Color.GREEN );
+        drawRayFromOrigin(400, 650, 0.343, g2d, Color.BLACK);
+
 
 
         // target point
-        drawEllipseFromCenter(t.getX(), t.getY(), 10, 10, g2d, Color.RED);
-        int target_x = (int) t.getX();
-        int target_y = (int) t.getY();
+        drawEllipseFromCenter(t.getDrX(), t.getDrY(), 10, 10, g2d, Color.RED);
+        int target_x = (int) t.getDrX();
+        int target_y = (int) t.getDrY();
         g2d.drawString("Target", target_x + 10, target_y + 10);
 
 
         // draw obstacles
         g2d.setStroke(new BasicStroke(2));
         for (Segment s : obstacles) {
-            double x1 = s.getX1();
-            double y1 = s.getY1();
-            double x2 = s.getX2();
-            double y2 = s.getY2();
+            double x1 = s.getDrX1();
+            double y1 = s.getDrY1();
+            double x2 = s.getDrX2();
+            double y2 = s.getDrY2();
 
             Line2D.Double line = new Line2D.Double(x1, y1, x2, y2);
             g2d.setColor(Color.BLUE);
@@ -80,14 +107,14 @@ public class DrawingCanvas extends JComponent {
 
         // Point
         // Point2D.Double p = new Point2D.Double(200, 200);
-        // g2d.setColor(Color.RED);
+        // g2d.setColor(hot_pink);
         // Ellipse2D.Double p = new Ellipse2D.Double(200, 200, 10, 10);
-        // g2d.setColor(Color.RED);
+        // g2d.setColor(hot_pink);
         // g2d.fill(p);
 
 
         // Ellipse2D.Double t = new Ellipse2D.Double(700, 500, 900, 900);
-        // g2d.setColor(Color.RED);
+        // g2d.setColor(hot_pink);
         // g2d.fill(t);
         // drawEllipseFromCenter(700, 500, 300, 300, g2d, Color.BLUE);
 
@@ -104,5 +131,18 @@ public class DrawingCanvas extends JComponent {
 
         g.setColor(c);
         g.fill(ellipse);
+    }
+
+    public void drawRayFromOrigin(double x, double y, double angle, Graphics2D g, Color c){
+        
+        Color original_color = g.getColor();
+        g.setColor(c);
+        double x_endpoint = x + 1000 * Math.acos(angle);
+        double y_endpoint = y + 1000 * Math.asin(angle);
+
+        Line2D.Double ray = new Line2D.Double(x, y, x_endpoint, y_endpoint);
+        g.draw(ray);
+
+        g.setColor(original_color);
     }
 }
