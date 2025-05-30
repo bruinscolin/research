@@ -74,8 +74,12 @@ public class DrawingCanvas extends JComponent {
 
 
         // circle test
+
         drawEllipseFromCenter( t.getDrX(), t.getDrY(), 78, 78, g2d, Color.GREEN );
         drawRayFromOrigin(400, 650, 0.343, g2d, Color.BLACK);
+        // Point tan_point = new Point(76.49, -15.54);
+        // drawEllipseFromCenter(tan_point.getDrX(), tan_point.getDrY(), 10, 10, g2d, Color.PINK);
+
 
 
 
@@ -137,8 +141,8 @@ public class DrawingCanvas extends JComponent {
         
         Color original_color = g.getColor();
         g.setColor(c);
-        double x_endpoint = x + 1000 * Math.acos(angle);
-        double y_endpoint = y + 1000 * Math.asin(angle);
+        double x_endpoint = x + 5000 * Math.cos(angle); // 5000 value just to put it offscreen
+        double y_endpoint = y - 5000 * Math.sin(angle); // may need to be adjusted based on window dimensions
 
         Line2D.Double ray = new Line2D.Double(x, y, x_endpoint, y_endpoint);
         g.draw(ray);

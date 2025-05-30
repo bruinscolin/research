@@ -37,21 +37,45 @@ public class App {
         }
 
         // Each ray originates at v and passes through a point u ∈ V \ {v}
-        for (int i = 0; i < endpoints.size(); i++) {
+        // for (int i = 0; i < endpoints.size(); i++) {
 
-            for (int j = 0; j < endpoints.size(); j++){
-                if (i == j || (endpoints.get(i).equals(endpoints.get(j)))){
-                    continue; // if the u and v are the same, ignore
-                }
+        //     for (int j = 0; j < endpoints.size(); j++){
+
+                // if (endpoints.get(i).equals(endpoints.get(j))){
+                //     continue; // if the u and v are the same, ignore
+                // }
+
+                int i = 2;
+                int j = 0;
+
                 Point u = endpoints.get(i);
                 Point v = endpoints.get(j);
-                
+
+                u.print();
+                v.print();
+
+             
                 // calculate ray from u -> v
+
+
                 double x_dist = v.getX() - u.getX(); // both could be negative
                 double y_dist = v.getY() - u.getY();
 
+
                 // angle in radians with respect to x-axis
                 double ray_angle = Math.atan2(y_dist, x_dist); 
+
+                while (ray_angle >= 2 * Math.PI){
+
+                    ray_angle = ray_angle - (2 * Math.PI);
+                }
+
+                while (ray_angle <= -2 * Math.PI){
+
+                    ray_angle = ray_angle + (2 * Math.PI);
+
+                }
+
                 Ray ray = new Ray(u, ray_angle); // will pass through v
 
                 System.out.println("Ray angle = " + ray_angle + " radians");
@@ -60,25 +84,37 @@ public class App {
                 // create circle C around target and touching ray
                 Point c_center = new Point(t.getX(), t.getY());
                 double c_radius = foo(c_center, ray);
+                Circle c = new Circle(c_center, c_radius);
                 
-                
+                // Point tan_point = circleRayTangent(c, ray);
+                // tan_point.print();
+
+
                 // do A1
-                u.print(); 
-                v.print(); 
+                // u.print(); 
+                // v.print(); 
                 System.out.print('\n');
 
                 
             }
             
-        }
-    }
+    //     }
+    // }
 
     public static void A1(Point t, Segment[] o, DrawingCanvas dc) {
 
     }
+    
+    // given a circle and a ray, find the point that is 
+    // tanget between them
+    public static Point circleRayTangent(Circle c, Ray r){
+        return new Point(0,0);
+    }
 
 
-
+    // given center t and a line (or ray)
+    // find the radius of a circle that is
+    // tangent to the line
     public static double foo(Point circle_center, Ray ray){
         double radius = Math.abs(
             (
@@ -87,10 +123,25 @@ public class App {
             )
             +
             (Math.acos(ray.getAngle()) * (circle_center.getY() - ray.getY()))
-        );
+        ); 
+        // r =|(-sinθ)(x0 - x1) + cosθ(y0 - y1)|
+        // x0, y0 = circle center
+        // x1, y1 = ray origin
         System.out.println("Circle Radius: " + radius);
 
         return radius;
 
+    }
+
+    public static boolean doesSegmentIntersect(Segment s, Segment q){
+        // check if segments are the same 
+        if (( s.getP1().equals(q.getP1()) && s.getP2().equals(q.getP2())) ||
+            ( s.getP2().equals(q.getP1()) && s.getP1().equals(q.getP2()))){
+            return true;
+        }
+        
+
+
+        return true;
     }
 }
