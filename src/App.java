@@ -65,11 +65,12 @@ public class App {
                 // angle in radians with respect to x-axis
                 double ray_angle = Math.atan2(y_dist, x_dist); 
 
+                // decreases/increases angle until equivalent angle
+                // within -2pi <= θ <= 2pi is in range
                 while (ray_angle >= 2 * Math.PI){
 
                     ray_angle = ray_angle - (2 * Math.PI);
                 }
-
                 while (ray_angle <= -2 * Math.PI){
 
                     ray_angle = ray_angle + (2 * Math.PI);
@@ -86,9 +87,23 @@ public class App {
                 double c_radius = foo(c_center, ray);
                 Circle c = new Circle(c_center, c_radius);
                 
-                // Point tan_point = circleRayTangent(c, ray);
-                // tan_point.print();
+                // use circle radius and distance from ray origin to circle center
+                // to find tangent point(b0)
 
+
+                double o_c_distance = pointDistance(u, c_center); // hypo
+                double ray_distance = Math.sqrt((o_c_distance * o_c_distance) - (c_radius * c_radius));
+                
+                double tan_x = u.getX() + (ray_distance * Math.cos(ray_angle));
+                double tan_y = u.getY() + (ray_distance * Math.sin(ray_angle));
+
+                Point tan_point = new Point(tan_x, tan_y);
+                System.out.print("Tangent point is: ");
+                tan_point.print();
+
+                // check ray reversal from b0 
+                // find c0
+                // check if b0c0 intersects with any lines
 
                 // do A1
                 // u.print(); 
@@ -133,15 +148,35 @@ public class App {
 
     }
 
-    public static boolean doesSegmentIntersect(Segment s, Segment q){
-        // check if segments are the same 
-        if (( s.getP1().equals(q.getP1()) && s.getP2().equals(q.getP2())) ||
-            ( s.getP2().equals(q.getP1()) && s.getP1().equals(q.getP2()))){
-            return true;
-        }
-        
+    // orientation testing to see if point lies above, below or on
+    // a line segment
+    // s1, s2 are lines segment endpoints
+    // q is query point
+    public static double orientationTest(Point s1, Point s2, Point q){
+        double a1 = s1.getX();
+        double a2 = s1.getY();
 
+        double b1 = s2.getX();
+        double b2 = s2.getY();
 
-        return true;
+        double c1 = q.getX();
+        double c2 = q.getY();
+
+        double det = a1 * (b2 - c2) - a2 * (b1 - c1) + ((b1 * c2) - (b2 * c1));
+        // if det > 0: cc
+        // if det < 0: clockwise
+        // if det = 0: collinear
+        return det;
     }
+
+
+
+    public static double pointDistance(Point p1, Point p2){
+        double x_dist = Math.abs(p1.getX() - p2.getX());
+        double y_dist = Math.abs(p1.getY() - p2.getY());
+
+        double dist = Math.sqrt(( x_dist * x_dist ) + ( y_dist * y_dist ));
+        return dist;
+    }
+
 }

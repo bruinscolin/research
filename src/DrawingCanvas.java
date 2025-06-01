@@ -1,6 +1,8 @@
 import java.awt.*; // adds the color and graphics class
 import java.awt.geom.*; // adds shapes and paths
 import javax.swing.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 
 public class DrawingCanvas extends JComponent {
@@ -16,6 +18,20 @@ public class DrawingCanvas extends JComponent {
         this.height = h;
         this.t = t;
         this.obstacles = obstacles;
+
+
+
+        this.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            int x = e.getX() - width / 2; // convert to logical coords
+            int y = height / 2 - e.getY(); 
+
+            // coords can only be ints from the mouseevent get functions
+            System.out.println("Mouse clicked at: (" + x + ", " + y + ")");
+        }
+});
+
     }
     
     // sets color, draws lines, curves, and shapes
@@ -77,8 +93,8 @@ public class DrawingCanvas extends JComponent {
 
         drawEllipseFromCenter( t.getDrX(), t.getDrY(), 78, 78, g2d, Color.GREEN );
         drawRayFromOrigin(400, 650, 0.343, g2d, Color.BLACK);
-        // Point tan_point = new Point(76.49, -15.54);
-        // drawEllipseFromCenter(tan_point.getDrX(), tan_point.getDrY(), 10, 10, g2d, Color.PINK);
+        Point tan_point = new Point(7.2, -40.29);
+        drawEllipseFromCenter(tan_point.getDrX(), tan_point.getDrY(), 10, 10, g2d, Color.PINK);
 
 
 
