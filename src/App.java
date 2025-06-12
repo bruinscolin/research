@@ -85,11 +85,10 @@ public class App {
                 // create circle C around target and touching ray
                 Point c_center = new Point(t.getX(), t.getY());
                 double c_radius = foo(c_center, ray);
-                Circle c = new Circle(c_center, c_radius);
+                Circle circle = new Circle(c_center, c_radius);
                 
                 // use circle radius and distance from ray origin to circle center
                 // to find tangent point(b0)
-
 
                 double o_c_distance = pointDistance(u, c_center); // hypo
                 double ray_distance = Math.sqrt((o_c_distance * o_c_distance) - (c_radius * c_radius));
@@ -97,17 +96,44 @@ public class App {
                 double tan_x = u.getX() + (ray_distance * Math.cos(ray_angle));
                 double tan_y = u.getY() + (ray_distance * Math.sin(ray_angle));
 
+                // b0
                 Point tan_point = new Point(tan_x, tan_y);
+                Point b0 = tan_point;
+
                 System.out.print("Tangent point is: ");
                 tan_point.print();
+                
 
                 // check ray reversal from b0 
-                // find c0
-                // check if b0c0 intersects with any lines
+                Point back_boundary = new Point(tan_x + 5000 * Math.cos(ray_angle + Math.PI), tan_y + 5000 * Math.sin(ray_angle + Math.PI));
+                Segment ray_reversal = new Segment(back_boundary, u);
+                for (Segment q : o){
+                    if (doSegmentsIntersect(q, ray_reversal)){
+                        System.out.print("Ray reversal intersects with obstacles. Falure.");
+                        break;
+                    }
+                }
 
+                // find c0
+                // ASK ABOUT
+                double c0_x = b0.getX() + ( c_radius * Math.cos(ray_angle) );
+                double c0_y = b0.getY() + ( c_radius * Math.sin(ray_angle) );
+                Point c0 = new Point(c0_x, c0_y);
+                ///
+                System.out.print("c0: ");
+                c0.print();
+
+                // check if b0c0 intersects with any lines
+                Segment b0c0 = new Segment(tan_point, c0);
+                for (Segment q : o){
+                if (doSegmentsIntersect(q, b0c0)){
+                    System.out.print("Line b0c0 intersects obstacle. Failure.");
+                    break;
+                    }
+                }
                 // do A1
-                // u.print(); 
-                // v.print(); 
+
+
                 System.out.print('\n');
 
                 
@@ -116,16 +142,12 @@ public class App {
     //     }
     // }
 
-    public static void A1(Point t, Segment[] o, DrawingCanvas dc) {
-
-    }
     
     // given a circle and a ray, find the point that is 
     // tanget between them
     public static Point circleRayTangent(Circle c, Ray r){
         return new Point(0,0);
     }
-
 
     // given center t and a line (or ray)
     // find the radius of a circle that is
@@ -177,6 +199,36 @@ public class App {
 
         double dist = Math.sqrt(( x_dist * x_dist ) + ( y_dist * y_dist ));
         return dist;
+    }
+
+    public static boolean doSegmentsIntersect(Segment s1, Segment s2){
+        if (( orientationTest(s1.getP1(), s1.getP2(), s2.getP1()) >= 0 &&
+        orientationTest(s1.getP1(), s1.getP2(), s2.getP2()) >= 0 ) ||
+        ( orientationTest(s1.getP1(), s1.getP2(), s2.getP1()) <= 0 &&
+        orientationTest(s1.getP1(), s1.getP2(), s2.getP2()) <= 0 )){
+            return false;
+        }
+        return true;
+     
+    }
+
+    // given two segments, check if any other segments intersect
+    // the segments that is formed betyween them
+    // note that s1 and s2 share a common segment, that is the center
+    public static boolean isSectorEmpty(Segment s1, Segment s2, Segment q){
+        Point center;
+        // determine what the center is
+        if (s1.getP1() == s2.getP1() || s1.getP1() == s2.getP2()){
+            center = s1.getP1();
+        } else{
+            center = s1.getP2();
+        }
+
+        if (doSegmentsIntersect(s1, q) || doSegmentsIntersect(s2, q)){
+            return false;
+        }
+
+       return true; 
     }
 
 }

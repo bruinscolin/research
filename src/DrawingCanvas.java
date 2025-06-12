@@ -91,19 +91,32 @@ public class DrawingCanvas extends JComponent {
 
         // circle test
 
-        drawEllipseFromCenter( t.getDrX(), t.getDrY(), 78, 78, g2d, Color.GREEN );
+        outlineEllipseFromCenter( t.getDrX(), t.getDrY(), 78, 78, g2d, Color.BLUE );
         drawRayFromOrigin(400, 650, 0.343, g2d, Color.BLACK);
-        Point tan_point = new Point(7.2, -40.29);
+        // Point tan_point = new Point(7.2, -40.29);
+        Point tan_point = new Point(7.196714922555714, -40.28688752765868);
+
         drawEllipseFromCenter(tan_point.getDrX(), tan_point.getDrY(), 10, 10, g2d, Color.PINK);
 
 
 
+       
 
         // target point
         drawEllipseFromCenter(t.getDrX(), t.getDrY(), 10, 10, g2d, Color.RED);
         int target_x = (int) t.getDrX();
         int target_y = (int) t.getDrY();
         g2d.drawString("Target", target_x + 10, target_y + 10);
+
+        // c0 
+        Point c0 = new Point(80.7, -14.03);
+        drawEllipseFromCenter(c0.getDrX(), c0.getDrY(), 10, 10, g2d, Color.GREEN);
+        int c0_string_x = (int) c0.getDrX();
+        int c0_string_y = (int) c0.getDrY();
+
+        g2d.drawString("c0", c0_string_x + 10, c0_string_y + 10);
+
+        
 
 
         // draw obstacles
@@ -120,23 +133,6 @@ public class DrawingCanvas extends JComponent {
         }
         g2d.setStroke(new BasicStroke(1));
 
-        // Circle, x and y coordniates where the rectagnluar border starts
-        // X height and Y height of the circle
-        // Ellipse2D.Double e = new Ellipse2D.Double(200, 75, 200, 200);
-        // g2d.draw(e);
-
-        // Point
-        // Point2D.Double p = new Point2D.Double(200, 200);
-        // g2d.setColor(hot_pink);
-        // Ellipse2D.Double p = new Ellipse2D.Double(200, 200, 10, 10);
-        // g2d.setColor(hot_pink);
-        // g2d.fill(p);
-
-
-        // Ellipse2D.Double t = new Ellipse2D.Double(700, 500, 900, 900);
-        // g2d.setColor(hot_pink);
-        // g2d.fill(t);
-        // drawEllipseFromCenter(700, 500, 300, 300, g2d, Color.BLUE);
 
     }
 
@@ -151,6 +147,18 @@ public class DrawingCanvas extends JComponent {
 
         g.setColor(c);
         g.fill(ellipse);
+    }
+
+    // same as previous function, but only outlines
+    public void outlineEllipseFromCenter(double x, double y, double width, double height, Graphics2D g, Color c)
+    {
+        double newX = x - width / 2.0;
+        double newY = y - height / 2.0;
+
+        Ellipse2D ellipse = new Ellipse2D.Double(newX, newY, width, height);
+
+        g.setColor(c);
+        g.draw(ellipse);
     }
 
     public void drawRayFromOrigin(double x, double y, double angle, Graphics2D g, Color c){
