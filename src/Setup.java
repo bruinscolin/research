@@ -5,7 +5,7 @@ public class Setup {
         // Example input values
 
         int w = 1400;
-        int h = 1400;
+        int h = 1000;
         Point t = target;
 
         Segment[] obstacles = o;

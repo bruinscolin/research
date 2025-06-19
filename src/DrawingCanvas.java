@@ -92,13 +92,15 @@ public class DrawingCanvas extends JComponent {
         // circle test
 
         outlineEllipseFromCenter( t.getDrX(), t.getDrY(), 78, 78, g2d, Color.BLUE );
+
+        // outlineEllipseFromCenter( t.getDrX(), t.getDrY(), 40.36036763977876, 40.36036763977876, g2d, Color.BLUE );
         drawRayFromOrigin(400, 650, 0.343, g2d, Color.BLACK);
-        // Point tan_point = new Point(7.2, -40.29);
-        Point tan_point = new Point(7.196714922555714, -40.28688752765868);
 
-        drawEllipseFromCenter(tan_point.getDrX(), tan_point.getDrY(), 10, 10, g2d, Color.PINK);
+        // draw b0
+        Point tan_point = new Point(13.5746606334842, -38.00904977375565);
+        drawEllipseFromCenter(tan_point.getDrX(), tan_point.getDrY(), 10, 10, g2d, hot_pink);
 
-
+        g2d.drawString("b0",(int) tan_point.getDrX() + 10, (int) tan_point.getDrY() + 10);
 
        
 
@@ -109,7 +111,7 @@ public class DrawingCanvas extends JComponent {
         g2d.drawString("Target", target_x + 10, target_y + 10);
 
         // c0 
-        Point c0 = new Point(80.7, -14.03);
+        Point c0 = new Point(51.58371040723986, -24.434389140271485);
         drawEllipseFromCenter(c0.getDrX(), c0.getDrY(), 10, 10, g2d, Color.GREEN);
         int c0_string_x = (int) c0.getDrX();
         int c0_string_y = (int) c0.getDrY();
