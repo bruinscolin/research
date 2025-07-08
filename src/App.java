@@ -19,8 +19,8 @@ public class App {
         Segment[] obstacles = { 
             new Segment(new Point(-230, -125), new Point(-100, -250)),
             new Segment(new Point(-300, -150), new Point(-250, -50)),
-            new Segment(new Point(-1000, -999), new Point(-999, -998)),
-            new Segment(new Point(5, 5), new Point(-10, -10)),
+            // new Segment(new Point(-1000, -999), new Point(-999, -998)),
+            // new Segment(new Point(5, 5), new Point(-10, -10)),
             // new Segment(new Point(0, 0), new Point(100, 100)) // breaks when it shouldn't
         };
         DrawingCanvas dc = Setup.main(target, obstacles);
