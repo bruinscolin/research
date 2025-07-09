@@ -4,6 +4,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class App {
     public static void main(String[] args) throws Exception {
 
@@ -59,11 +60,8 @@ public class App {
 
              
                 // calculate ray from u -> v
-
-
                 double x_dist = v.getX() - u.getX(); // both could be negative
                 double y_dist = v.getY() - u.getY();
-
 
                 // angle in radians with respect to x-axis
                 double ray_angle = Math.atan2(y_dist, x_dist); 
@@ -89,7 +87,12 @@ public class App {
                 Point c_center = new Point(t.getX(), t.getY());
                 double c_radius = foo(c_center, ray);
                 Circle circle = new Circle(c_center, c_radius);
-                
+
+                dc.addCircle(circle);
+                dc.waitForKey('n'); // or whatever key you want to use to continue
+                dc.addCircle(new Circle(new Point(0, 0), 60));
+
+
                 // use circle radius and distance from ray origin to circle center
                 // to find tangent point(b0)
 

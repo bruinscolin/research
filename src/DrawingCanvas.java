@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 
 public class DrawingCanvas extends JComponent {
@@ -13,15 +14,68 @@ public class DrawingCanvas extends JComponent {
     private Point t;
     private Segment[] obstacles;
 
+
+    // for zoom function
     private double scale = 1.0; 
     private double offsetX = 0;
     private double offsetY = 0;
     private double mouseX;
     private double mouseY;
 
-    public void addCircle(Circle c) {
-        System.out.print("test");
+
+    // for dynamic image
+    private List<Circle> circles = new ArrayList<>(); // V in the context of the paper
+   
+    private List<Segment> segments = new ArrayList<>(); // V in the context of the paper
+
+    private List<Point> points = new ArrayList<>(); // V in the context of the paper
+
+
+     // methods below add a shape to shapes array
+    // could be condesed in the future
+    public void addCircle(Circle c){
+        circles.add(c);
+        repaint();
+
     }
+
+    public void addSegment(Segment s){
+        segments.add(s);
+
+    }
+
+    public void addPoint(Point p){
+        points.add(p);
+    }
+
+
+    public void waitForKey(char key) {
+        CountDownLatch latch = new CountDownLatch(1);
+
+        KeyStroke ks = KeyStroke.getKeyStroke(key);
+        String actionKey = "waitForKey_" + key;
+
+        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ks, actionKey);
+        getActionMap().put(actionKey, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                latch.countDown();
+                // Remove listener after it's used once
+                getInputMap(WHEN_IN_FOCUSED_WINDOW).remove(ks);
+                getActionMap().remove(actionKey);
+            }
+        });
+
+        try {
+            latch.await(); // Blocks until the key is pressed
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
     public DrawingCanvas(int w, int h, Point t, Segment[] obstacles) {
         this.width = w;
         this.height = h;
@@ -135,6 +189,14 @@ public class DrawingCanvas extends JComponent {
 
 
         // circle test
+        // draw circles
+       for (Circle c : circles){
+            Point center = c.getCenter();
+            double draw_x = center.getDrX();
+            double draw_y = center.getDrY();
+            outlineEllipseFromCenter(draw_x, draw_y, 2 * c.getRadius(), 2 * c.getRadius(), g2d, Color.BLUE);
+
+        } 
 
 
         //// redraw test ////
@@ -143,7 +205,7 @@ public class DrawingCanvas extends JComponent {
 
         //// end of redraw test ////
 
-        outlineEllipseFromCenter( t.getDrX(), t.getDrY() , 78, 78, g2d, Color.BLUE );
+        // outlineEllipseFromCenter( t.getDrX(), t.getDrY() , 78, 78, g2d, Color.BLUE );
 
         // outlineEllipseFromCenter( t.getDrX(), t.getDrY(), 40.36036763977876, 40.36036763977876, g2d, Color.BLUE );
         drawRayFromOrigin(400, 650, 0.343, g2d, Color.BLACK);
@@ -189,6 +251,8 @@ public class DrawingCanvas extends JComponent {
         g2d.setStroke(new BasicStroke(1));
 
 
+
+
     }
 
 
@@ -218,7 +282,11 @@ public class DrawingCanvas extends JComponent {
 
 
     public void outlineEllipseFromCenter(double x, double y, double width, double height, Graphics2D g, Color c)
+    // public void outlineEllipseFromCenter(Circle c, double width, double height, Graphics2D g, Color color)
     {
+        // double x = c.getX();
+        // double y = c.getY();
+
         double screenX = (x * scale) + offsetX;
         double screenY = (y * scale) + offsetY;
 
@@ -248,7 +316,5 @@ public class DrawingCanvas extends JComponent {
 
         g.setColor(original_color);
     }
-
-
 
 }
