@@ -20,8 +20,7 @@ public class App {
         Segment[] obstacles = { 
             new Segment(new Point(-230, -125), new Point(-100, -250)),
             new Segment(new Point(-300, -150), new Point(-250, -50)),
-            // new Segment(new Point(-1000, -999), new Point(-999, -998)),
-            // new Segment(new Point(5, 5), new Point(-10, -10)),
+            // new Segment(new Point(0,0), new Point(0,0)) // works
             // new Segment(new Point(0, 0), new Point(100, 100)) // breaks when it shouldn't
         };
         DrawingCanvas dc = Setup.main(target, obstacles);
@@ -90,7 +89,7 @@ public class App {
 
                 dc.addCircle(circle);
                 dc.waitForKey('n'); // or whatever key you want to use to continue
-                dc.addCircle(new Circle(new Point(0, 0), 60));
+                // dc.addCircle(new Circle(new Point(0, 0), 60));
 
 
                 // use circle radius and distance from ray origin to circle center
@@ -105,6 +104,14 @@ public class App {
                 // b0
                 Point tan_point = new Point(tan_x, tan_y);
                 Point b0 = tan_point;
+                b0.setLabel("b0");
+                dc.addPoint(b0);
+
+
+                Segment u_b0 = new Segment(u, b0);
+                dc.addSegment(u_b0);
+
+                
 
                 System.out.print("Tangent point is: ");
                 tan_point.print();
@@ -124,12 +131,17 @@ public class App {
                 double c0_x = b0.getX() + ( c_radius * Math.cos(ray_angle) );
                 double c0_y = b0.getY() + ( c_radius * Math.sin(ray_angle) );
                 Point c0 = new Point(c0_x, c0_y);
+                c0.setLabel("c0");
 
                 System.out.print("c0: ");
                 c0.print();
 
                 // check if b0c0 intersects with any lines
                 Segment b0c0 = new Segment(tan_point, c0);
+                dc.addSegment(b0c0);
+                dc.addPoint(c0);
+
+
                 for (Segment q : o){
                 if (segment_segment_intersect(q, b0c0)){
                     System.out.println("Line b0c0 intersects obstacle. Failure.");
@@ -287,6 +299,11 @@ public class App {
         List<Point> intersections = intersectSegmentCircle(q, c);
 
         for (Point p: intersections){
+            p.print();
+
+            if (p.equals(q.getP1()) || p.equals(q.getP2())) {
+            continue; // skip endpoints
+            }
             Point p1 = a1.getP1().equals(center) ? a1.getP2() : a1.getP1();
             Point p2 = a2.getP1().equals(center) ? a2.getP2() : a2.getP1();
 
@@ -343,13 +360,13 @@ public class App {
         double t2 = (-B + sqrtDiscriminant) / (2 * A);
 
         // Only keep points within the segment [0,1]
-        if (t1 >= 0 && t1 <= 1) {
+        if (t1 > 0 && t1 < 1) {
             double ix1 = x1 + t1 * dx;
             double iy1 = y1 + t1 * dy;
             result.add(new Point(ix1, iy1));
         }
 
-        if (t2 >= 0 && t2 <= 1 && discriminant > 0) {
+        if (t2 > 0 && t2 < 1 && discriminant > 0) {
             double ix2 = x1 + t2 * dx;
             double iy2 = y1 + t2 * dy;
             result.add(new Point(ix2, iy2));
@@ -420,7 +437,7 @@ public class App {
             angleQ += 2 * Math.PI;
         }
 
-        return angle1 <= angleQ && angleQ <= angle2;
+        return angle1 < angleQ && angleQ < angle2;
     }
 
 }

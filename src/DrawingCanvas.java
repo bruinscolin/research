@@ -41,11 +41,13 @@ public class DrawingCanvas extends JComponent {
 
     public void addSegment(Segment s){
         segments.add(s);
+        repaint();
 
     }
 
     public void addPoint(Point p){
         points.add(p);
+        repaint();
     }
 
 
@@ -187,8 +189,6 @@ public class DrawingCanvas extends JComponent {
         String logic_y_label = String.valueOf(0);
         g2d.drawString(logic_y_label, width / 2 - 15, 100);
 
-
-        // circle test
         // draw circles
        for (Circle c : circles){
             Point center = c.getCenter();
@@ -198,42 +198,35 @@ public class DrawingCanvas extends JComponent {
 
         } 
 
+       for (Segment s : segments){
+           
+           double x1 = s.getDrX1();
+           double y1 = s.getDrY1();
+           double x2 = s.getDrX2();
+           double y2 = s.getDrY2();
 
-        //// redraw test ////
+           Line2D.Double line = new Line2D.Double(x1, y1, x2, y2);
+           g2d.setColor(Color.BLACK);
+           g2d.draw(line);
 
-        // outlineEllipseFromCenter( t.getDrX(), t.getDrY() , 78 * scale , 78 * scale, g2d, Color.BLUE );
+        }
 
-        //// end of redraw test ////
+        for (Point p : points){
 
-        // outlineEllipseFromCenter( t.getDrX(), t.getDrY() , 78, 78, g2d, Color.BLUE );
+        
+        drawEllipseFromCenter(p.getDrX(), p.getDrY(), 10, 10, g2d, hot_pink);
 
-        // outlineEllipseFromCenter( t.getDrX(), t.getDrY(), 40.36036763977876, 40.36036763977876, g2d, Color.BLUE );
-        drawRayFromOrigin(400, 650, 0.343, g2d, Color.BLACK);
+        g2d.drawString(p.getLabel(),(int) p.getDrX() + 10, (int) p.getDrY() + 10);
+        }
 
-        // draw b0
-        Point tan_point = new Point(13.5746606334842, -38.00904977375565);
-        drawEllipseFromCenter(tan_point.getDrX(), tan_point.getDrY(), 10, 10, g2d, hot_pink);
-        // drawEllipseFromCenter(tan_point.getDrX(), tan_point.getDrY(), 10 * scale, 10 * scale, g2d, hot_pink);
-
-        g2d.drawString("b0",(int) tan_point.getDrX() + 10, (int) tan_point.getDrY() + 10);
 
        
-
+        // target and obstacles can be manually entered since that are static
         // target point
         drawEllipseFromCenter(t.getDrX(), t.getDrY(), 10, 10, g2d, Color.RED);
         int target_x = (int) t.getDrX();
         int target_y = (int) t.getDrY();
         g2d.drawString("Target", target_x + 10, target_y + 10);
-
-        // c0 
-        Point c0 = new Point(51.58371040723986, -24.434389140271485);
-        drawEllipseFromCenter(c0.getDrX(), c0.getDrY(), 10, 10, g2d, Color.GREEN);
-        int c0_string_x = (int) c0.getDrX();
-        int c0_string_y = (int) c0.getDrY();
-
-        g2d.drawString("c0", c0_string_x + 10, c0_string_y + 10);
-
-        
 
 
         // draw obstacles

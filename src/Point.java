@@ -7,6 +7,7 @@ public class Point {
     private double y;
     private double drx;
     private double dry;
+    private String label;
 
 
     public Point(double x, double y) {
@@ -16,7 +17,10 @@ public class Point {
         this.drx = x + 700; // both 500 and 700 values must change if
         this.dry = 500 - y; // width or height of drawing scene changes
 
+        this.label = "";
+
     }
+
 
     public void set(double x, double y) {
         this.x = x;
@@ -54,6 +58,14 @@ public class Point {
         System.out.println("X: " + this.x + " Y: " + this.y);
 
     }
+    
+    public void setLabel(String s){
+        this.label = s;
 
+    }
+
+    public String getLabel(){
+        return this.label;
+    }
 
 }
