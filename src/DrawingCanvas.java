@@ -24,14 +24,14 @@ public class DrawingCanvas extends JComponent {
 
 
     // for dynamic image
-    private List<Circle> circles = new ArrayList<>(); // V in the context of the paper
+    private List<Circle> circles = new ArrayList<>(); 
    
-    private List<Segment> segments = new ArrayList<>(); // V in the context of the paper
+    private List<Segment> segments = new ArrayList<>(); 
 
-    private List<Point> points = new ArrayList<>(); // V in the context of the paper
+    private List<Point> points = new ArrayList<>();
 
 
-     // methods below add a shape to shapes array
+    // methods below add a shape to shapes array
     // could be condesed in the future
     public void addCircle(Circle c){
         circles.add(c);
@@ -197,7 +197,8 @@ public class DrawingCanvas extends JComponent {
             outlineEllipseFromCenter(draw_x, draw_y, 2 * c.getRadius(), 2 * c.getRadius(), g2d, Color.BLUE);
 
         } 
-
+        
+       // draw segments
        for (Segment s : segments){
            
            double x1 = s.getDrX1();
@@ -209,15 +210,13 @@ public class DrawingCanvas extends JComponent {
            g2d.setColor(Color.BLACK);
            g2d.draw(line);
 
-        }
-
-        for (Point p : points){
-
-        
-        drawEllipseFromCenter(p.getDrX(), p.getDrY(), 10, 10, g2d, hot_pink);
-
-        g2d.drawString(p.getLabel(),(int) p.getDrX() + 10, (int) p.getDrY() + 10);
-        }
+       }
+    
+       // draw points
+       for (Point p : points){
+          drawEllipseFromCenter(p.getDrX(), p.getDrY(), 10, 10, g2d, hot_pink);
+          g2d.drawString(p.getLabel(),(int) p.getDrX() + 10, (int) p.getDrY() + 10);
+       }
 
 
        

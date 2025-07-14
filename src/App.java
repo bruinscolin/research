@@ -20,8 +20,14 @@ public class App {
         Segment[] obstacles = { 
             new Segment(new Point(-230, -125), new Point(-100, -250)),
             new Segment(new Point(-300, -150), new Point(-250, -50)),
+
+            // new Segment(new Point(10, -5), new Point(20, -20)), // sector not free
+            // new Segment(new Point(20, -20), new Point(40, 0)), // sector, arc not free
+            // new Segment(new Point(40, 0), new Point(40, -40)), // sector, arc not free
+
             // new Segment(new Point(0,0), new Point(0,0)) // works
-            // new Segment(new Point(0, 0), new Point(100, 100)) // breaks when it shouldn't
+
+            new Segment(new Point(0, 0), new Point(-100, 100)) // breaks when it shouldn't
         };
         DrawingCanvas dc = Setup.main(target, obstacles);
         algo(target, obstacles, dc);
@@ -88,7 +94,7 @@ public class App {
                 Circle circle = new Circle(c_center, c_radius);
 
                 dc.addCircle(circle);
-                dc.waitForKey('n'); // or whatever key you want to use to continue
+                dc.waitForKey(' '); // or whatever key you want to use to continue
                 // dc.addCircle(new Circle(new Point(0, 0), 60));
 
 
