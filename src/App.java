@@ -27,7 +27,6 @@ public class App {
 
             // new Segment(new Point(0,0), new Point(0,0)) // works
 
-            new Segment(new Point(0, 0), new Point(-100, 100)) // breaks when it shouldn't
         };
         DrawingCanvas dc = Setup.main(target, obstacles);
         algo(target, obstacles, dc);
