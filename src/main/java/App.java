@@ -1,6 +1,7 @@
 // visit https://users.csc.calpoly.edu/~kteo/pub/cgta21_1.pdf 
 // to see the original paper
 
+import java.awt.image.PixelGrabber;
 import java.util.ArrayList;
 import java.util.List;
 // import static Helpers.*;
@@ -172,6 +173,30 @@ public class App {
                 // break;
             }
         }
+
+        // draw sector
+
+        // find angle between b0 and t
+        double b0t_x_dist = t.getX() - b0.getX();
+        double b0t_y_dist = t.getY() - b0.getY();
+        double b0t_angle = Math.atan2(b0t_y_dist, b0t_x_dist);
+
+        // find angle between b0 and c0
+        double b0c0_x_dist = c0.getX() - b0.getX();
+        double b0c0_y_dist = c0.getY() - b0.getY();
+        double b0c0_angle = Math.atan2(b0c0_y_dist, b0c0_x_dist);
+
+        b0t_angle = Math.toDegrees(b0t_angle);
+        b0c0_angle = Math.toDegrees(b0c0_angle);
+
+        // ensure angles are positive (0 to 360 degrees)
+        if (b0t_angle < 0)
+            b0t_angle += 360;
+        if (b0c0_angle < 0)
+            b0c0_angle += 360;
+
+        dc.addSector(b0, b0c0_distance, b0c0_angle, b0t_angle);
+
         // end of A1
         // Start of A2
 
@@ -188,15 +213,30 @@ public class App {
 
         // Find the closest point c0 ∈ b0c0 to c0 such that
         // b0c0 does not intersect any obstacle
+
+        // note that 10,000 is used because it is larger than S
+        // if S is increased, this value may need to be scaled
         Point closest_intersect_point = new Point(10000, 10000);
 
         for (Segment obstacle : o) {
+            // if obstacle intersects b0c0
             if (Helpers.segment_segment_intersect(obstacle, b0c0)) {
-                // Point current_intersect_point =
-                // Helpers.getSegmentSegmentIntersectPoint(obstacle, b0c0);
+                Point current_intersect_point = Helpers.getSegmentSegmentIntersectPoint(obstacle, b0c0);
+
+                // find closest point to c0
+                if (Helpers.pointDistance(c0, current_intersect_point) < Helpers.pointDistance(c0,
+                        closest_intersect_point)) {
+                    closest_intersect_point = new Point(current_intersect_point.getX(), current_intersect_point.getY());
+
+                }
 
             }
 
+        }
+
+        // if no obstacles intersect b0c0, closest point (c') is c0
+        if (closest_intersect_point.equals(new Point(10000, 10000))) {
+            closest_intersect_point = c0;
         }
         System.out.print('\n');
 

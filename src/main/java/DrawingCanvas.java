@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-
 public class DrawingCanvas extends JComponent {
 
     private int width;
@@ -14,42 +13,56 @@ public class DrawingCanvas extends JComponent {
     private Point t;
     private Segment[] obstacles;
 
-
     // for zoom function
-    private double scale = 1.0; 
+    private double scale = 1.0;
     private double offsetX = 0;
     private double offsetY = 0;
     private double mouseX;
     private double mouseY;
 
-
     // for dynamic image
-    private List<Circle> circles = new ArrayList<>(); 
-   
-    private List<Segment> segments = new ArrayList<>(); 
+    private List<Circle> circles = new ArrayList<>();
+
+    private List<Segment> segments = new ArrayList<>();
 
     private List<Point> points = new ArrayList<>();
 
+    private List<Arc2D.Double> sectors = new ArrayList<>();
 
     // methods below add a shape to shapes array
     // could be condesed in the future
-    public void addCircle(Circle c){
+    public void addCircle(Circle c) {
         circles.add(c);
         repaint();
 
     }
 
-    public void addSegment(Segment s){
+    public void addSegment(Segment s) {
         segments.add(s);
         repaint();
 
     }
 
-    public void addPoint(Point p){
+    public void addPoint(Point p) {
         points.add(p);
         repaint();
     }
 
+    public void addSector(Point center, double radius, double startAngle, double end_angle) {
+        Arc2D.Double sector = new Arc2D.Double();
+
+        // Calculate the arc extent (angular span)
+        double extent = end_angle - startAngle;
+
+        // Ensure we go counterclockwise by making extent positive
+        if (extent <= 0) {
+            extent += 360.0;
+        }
+
+        sector.setArcByCenter(center.getDrX(), center.getDrY(), radius, startAngle, extent, Arc2D.PIE);
+        sectors.add(sector);
+        repaint();
+    }
 
     public void waitForKey(char key) {
         CountDownLatch latch = new CountDownLatch(1);
@@ -75,15 +88,11 @@ public class DrawingCanvas extends JComponent {
         }
     }
 
-
-
-
     public DrawingCanvas(int w, int h, Point t, Segment[] obstacles) {
         this.width = w;
         this.height = h;
         this.t = t;
         this.obstacles = obstacles;
-
 
         // adjusts the zoom when wheel scrolled, marks the X and Y of mouse
         this.addMouseWheelListener(e -> {
@@ -102,14 +111,14 @@ public class DrawingCanvas extends JComponent {
 
         // clicking gives coordinates
         this.addMouseListener(new MouseAdapter() {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            int x = e.getX() - width / 2; // convert to logical coords
-            int y = height / 2 - e.getY(); 
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int x = e.getX() - width / 2; // convert to logical coords
+                int y = height / 2 - e.getY();
 
-            // coords can only be ints from the mouseevent get functions
-            System.out.println("Mouse clicked at: (" + x + ", " + y + ")");
-        }
+                // coords can only be ints from the mouseevent get functions
+                System.out.println("Mouse clicked at: (" + x + ", " + y + ")");
+            }
         });
 
         // pressing R key resets zoom
@@ -126,25 +135,19 @@ public class DrawingCanvas extends JComponent {
                 repaint();
             }
         });
-        
 
     }
-    
-
-
-
-
 
     // sets color, draws lines, curves, and shapes
-    protected  void paintComponent(Graphics g) { 
+    protected void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g; // cast to Graphics2D
 
         Color hot_pink = new Color(255, 0, 195);
 
         // smooth edges for diagonal lines
         RenderingHints rh = new RenderingHints(
-            RenderingHints.KEY_ANTIALIASING, 
-            RenderingHints.VALUE_ANTIALIAS_ON);
+                RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
 
         g2d.setRenderingHints(rh);
         // Line2D.Double line = new Line2D.Double(0, 0, width, height); // create a line
@@ -157,15 +160,12 @@ public class DrawingCanvas extends JComponent {
         g2d.setColor(Color.BLACK);
         g2d.draw(drawing_x_axis);
 
-
         String drawing_x_label = String.valueOf(height / 2);
         g2d.drawString(drawing_x_label, 50, height / 2 + 15);
-
 
         Line2D.Double logic_x_axis = new Line2D.Double(50, height / 2, 100, height / 2);
         g2d.setColor(hot_pink);
         g2d.draw(logic_x_axis);
-
 
         String logic_x_label = String.valueOf(0);
         g2d.drawString(logic_x_label, 100, height / 2 - 15);
@@ -175,58 +175,72 @@ public class DrawingCanvas extends JComponent {
         Line2D.Double drawing_y_axis = new Line2D.Double(width / 2, 0, width / 2, 50);
         g2d.draw(drawing_y_axis);
 
-
         String drawing_y_label = String.valueOf(width / 2);
         g2d.drawString(drawing_y_label, width / 2 + 15, 50);
-
-
 
         Line2D.Double logic_y_axis = new Line2D.Double(width / 2, 50, width / 2, 100);
         g2d.setColor(hot_pink);
         g2d.draw(logic_y_axis);
 
-
         String logic_y_label = String.valueOf(0);
         g2d.drawString(logic_y_label, width / 2 - 15, 100);
 
         // draw circles
-       for (Circle c : circles){
+        for (Circle c : circles) {
             Point center = c.getCenter();
             double draw_x = center.getDrX();
             double draw_y = center.getDrY();
             outlineEllipseFromCenter(draw_x, draw_y, 2 * c.getRadius(), 2 * c.getRadius(), g2d, Color.BLUE);
 
-        } 
-        
-       // draw segments
-       for (Segment s : segments){
-           
-           double x1 = s.getDrX1();
-           double y1 = s.getDrY1();
-           double x2 = s.getDrX2();
-           double y2 = s.getDrY2();
+        }
 
-           Line2D.Double line = new Line2D.Double(x1, y1, x2, y2);
-           g2d.setColor(Color.BLACK);
-           g2d.draw(line);
+        // draw segments
+        for (Segment s : segments) {
 
-       }
-    
-       // draw points
-       for (Point p : points){
-          drawEllipseFromCenter(p.getDrX(), p.getDrY(), 10, 10, g2d, hot_pink);
-          g2d.drawString(p.getLabel(),(int) p.getDrX() + 10, (int) p.getDrY() + 10);
-       }
+            double x1 = s.getDrX1();
+            double y1 = s.getDrY1();
+            double x2 = s.getDrX2();
+            double y2 = s.getDrY2();
 
+            Line2D.Double line = new Line2D.Double(x1, y1, x2, y2);
+            g2d.setColor(Color.BLACK);
+            g2d.draw(line);
 
-       
+        }
+
+        // draw points
+        for (Point p : points) {
+            drawEllipseFromCenter(p.getDrX(), p.getDrY(), 10, 10, g2d, hot_pink);
+            g2d.drawString(p.getLabel(), (int) p.getDrX() + 10, (int) p.getDrY() + 10);
+        }
+
+        // sector testing
+        // Arc2D.Double sector = new Arc2D.Double(
+        // 500, // x coordinate of bounding rectangle
+        // 50, // y coordinate of bounding rectangle
+        // 200, // width of bounding rectangle
+        // 200, // height of bounding rectangle
+        // 0, // start angle in degrees (0 is 3 o'clock)
+        // 90, // extent angle in degrees (arc span)
+        // Arc2D.PIE // arc type - creates a pie slice
+        // );
+
+        for (Arc2D.Double sector : sectors) {
+            g2d.draw(sector);
+
+        }
+
+        // drawQuarterSector(g2d, 700, 500, 40.36036763977876, 0);
+        // Fill the sector
+        // g2d.setColor(Color.BLUE);
+        // g2d.draw(sector);
+
         // target and obstacles can be manually entered since that are static
         // target point
         drawEllipseFromCenter(t.getDrX(), t.getDrY(), 10, 10, g2d, Color.RED);
         int target_x = (int) t.getDrX();
         int target_y = (int) t.getDrY();
         g2d.drawString("Target", target_x + 10, target_y + 10);
-
 
         // draw obstacles
         g2d.setStroke(new BasicStroke(2));
@@ -242,15 +256,10 @@ public class DrawingCanvas extends JComponent {
         }
         g2d.setStroke(new BasicStroke(1));
 
-
-
-
     }
 
-
     // draws a circle from the center of the given coords, best use for a point
-    public void drawEllipseFromCenter(double x, double y, double width, double height, Graphics2D g, Color c)
-    {
+    public void drawEllipseFromCenter(double x, double y, double width, double height, Graphics2D g, Color c) {
         // double newX = x - width / 2.0;
         // double newY = y - height / 2.0;
 
@@ -266,15 +275,13 @@ public class DrawingCanvas extends JComponent {
 
         Ellipse2D ellipse = new Ellipse2D.Double(drawX, drawY, screenWidth, screenHeight);
 
-
         g.setColor(c);
         g.fill(ellipse);
     }
 
-
-
     public void outlineEllipseFromCenter(double x, double y, double width, double height, Graphics2D g, Color c)
-    // public void outlineEllipseFromCenter(Circle c, double width, double height, Graphics2D g, Color color)
+    // public void outlineEllipseFromCenter(Circle c, double width, double height,
+    // Graphics2D g, Color color)
     {
         // double x = c.getX();
         // double y = c.getY();
@@ -294,10 +301,8 @@ public class DrawingCanvas extends JComponent {
         g.draw(ellipse);
     }
 
+    public void drawRayFromOrigin(double x, double y, double angle, Graphics2D g, Color c) {
 
-
-    public void drawRayFromOrigin(double x, double y, double angle, Graphics2D g, Color c){
-        
         Color original_color = g.getColor();
         g.setColor(c);
         double x_endpoint = x + 5000 * Math.cos(angle); // 5000 value just to put it offscreen
@@ -307,6 +312,20 @@ public class DrawingCanvas extends JComponent {
         g.draw(ray);
 
         g.setColor(original_color);
+    }
+
+    // Instead of calculating complex angles, you only need the start angle
+    public void drawQuarterSector(Graphics2D g2d, int centerX, int centerY, double radius, double startAngle) {
+        Arc2D.Double sector = new Arc2D.Double();
+        sector.setArcByCenter(
+                centerX, // center x (double)
+                centerY, // center y (double)
+                radius, // radius (double)
+                startAngle, // start angle (double)
+                90.0, // extent angle (double)
+                Arc2D.PIE);
+
+        g2d.draw(sector);
     }
 
 }

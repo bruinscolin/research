@@ -282,9 +282,32 @@ public class Helpers {
         return angle1 < angleQ && angleQ < angle2;
     }
 
-    // public static Point getSegmentSegmentIntersectPoint(Segment s1, Segment s2){
+    public static Point getSegmentSegmentIntersectPoint(Segment s1, Segment s2) {
+        // segment 1 points
+        double s1x1 = s1.getX1();
+        double s1y1 = s1.getY1();
+        double s1x2 = s1.getX2();
+        double s1y2 = s1.getY2();
 
-    //
+        // segment 2 points
+        double s2x1 = s2.getX1();
+        double s2y1 = s2.getY1();
+        double s2x2 = s2.getX2();
+        double s2y2 = s2.getY2();
 
-    // }
+        double slope1 = (s1y2 - s1y1) / (s1x2 - s1x1);
+        double slope2 = (s2y2 - s2y1) / (s2x2 - s2x1);
+
+        double y1_intercept = s1y1 - slope1 * s1x1;
+        double y2_intercept = s2y1 - slope2 * s2x1;
+
+        // set equations equal to each other
+        // m1x + b1 = m2x + b2
+
+        double x = (y2_intercept - y2_intercept) / (slope1 - slope2);
+        double y = (slope1 * x) + y1_intercept;
+
+        return new Point(x, y);
+    }
+
 }
