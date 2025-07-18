@@ -223,8 +223,8 @@ public class App {
             if (Helpers.segment_segment_intersect(obstacle, b0c0)) {
                 Point current_intersect_point = Helpers.getSegmentSegmentIntersectPoint(obstacle, b0c0);
 
-                // find closest point to c0
-                if (Helpers.pointDistance(c0, current_intersect_point) < Helpers.pointDistance(c0,
+                // find closest point to b0
+                if (Helpers.pointDistance(b0, current_intersect_point) < Helpers.pointDistance(b0,
                         closest_intersect_point)) {
                     closest_intersect_point = new Point(current_intersect_point.getX(), current_intersect_point.getY());
 
@@ -235,9 +235,9 @@ public class App {
         }
 
         // if no obstacles intersect b0c0, closest point (c') is c0
-        if (closest_intersect_point.equals(new Point(10000, 10000))) {
-            closest_intersect_point = c0;
-        }
+        // if (closest_intersect_point.equals(new Point(10000, 10000))) {
+        //     closest_intersect_point = c0;
+        // }
         System.out.print('\n');
 
     }

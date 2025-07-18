@@ -215,15 +215,6 @@ public class DrawingCanvas extends JComponent {
         }
 
         // sector testing
-        // Arc2D.Double sector = new Arc2D.Double(
-        // 500, // x coordinate of bounding rectangle
-        // 50, // y coordinate of bounding rectangle
-        // 200, // width of bounding rectangle
-        // 200, // height of bounding rectangle
-        // 0, // start angle in degrees (0 is 3 o'clock)
-        // 90, // extent angle in degrees (arc span)
-        // Arc2D.PIE // arc type - creates a pie slice
-        // );
 
         for (Arc2D.Double sector : sectors) {
             g2d.draw(sector);

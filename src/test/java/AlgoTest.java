@@ -67,7 +67,7 @@ class SegmentIntersectTest {
                 new Segment(new Point(100, -80), new Point(200, 0)),
                 new Segment(new Point(-80, 110), new Point(50, 0)),
                 new Segment(new Point(0, 150), new Point(120, 0)),
-                new Segment(new Point(-200, 0), new Point(-100, -100))
+                new Segment(new Point(-200, 0), new Point(-100, -100)),
         };
 
         Segment[] both_endpoint_intersect = {
@@ -75,7 +75,9 @@ class SegmentIntersectTest {
                 new Segment(new Point(50, 0), new Point(150, 0)),
                 new Segment(new Point(-80, 0), new Point(20, 0)),
                 new Segment(new Point(180, 0), new Point(300, 0)),
-                new Segment(new Point(-350, 0), new Point(-250, 0))
+                new Segment(new Point(-350, 0), new Point(-250, 0)),
+
+                new Segment(new Point(-550, 0), new Point(-400, 0))
         };
 
         for (Segment s : one_endpoint_intersects) {
@@ -90,30 +92,30 @@ class SegmentIntersectTest {
     }
 }
 
-class CircleSegmentIntersect {
-    @Test
-    void fully_inside_circle() {
+// class CircleSegmentIntersect {
+// @Test
+// void fully_inside_circle() {
 
-        Circle c = new Circle(new Point(0, 0), 100);
+// Circle c = new Circle(new Point(0, 0), 100);
 
-        Segment[] inside_circle = {
-                new Segment(new Point(-50, 0), new Point(50, 0)),
-                new Segment(new Point(0, -50), new Point(0, 50)),
-                new Segment(new Point(-30, -30), new Point(30, 30)),
-                new Segment(new Point(-30, 30), new Point(30, -30)),
-                new Segment(new Point(-60, 20), new Point(-20, 60)),
-                new Segment(new Point(20, -60), new Point(60, -20)),
-                new Segment(new Point(-40, -50), new Point(-10, -70)),
-                new Segment(new Point(25, 35), new Point(55, 65)),
-                new Segment(new Point(-70, 10), new Point(-45, 40)),
-                new Segment(new Point(15, -80), new Point(45, -55)),
+// Segment[] inside_circle = {
+// new Segment(new Point(-50, 0), new Point(50, 0)),
+// new Segment(new Point(0, -50), new Point(0, 50)),
+// new Segment(new Point(-30, -30), new Point(30, 30)),
+// new Segment(new Point(-30, 30), new Point(30, -30)),
+// new Segment(new Point(-60, 20), new Point(-20, 60)),
+// new Segment(new Point(20, -60), new Point(60, -20)),
+// new Segment(new Point(-40, -50), new Point(-10, -70)),
+// new Segment(new Point(25, 35), new Point(55, 65)),
+// new Segment(new Point(-70, 10), new Point(-45, 40)),
+// new Segment(new Point(15, -80), new Point(45, -55)),
 
-        };
+// };
 
-        for (Segment s : inside_circle) {
-            // assertEmpty(Helpers.intersectSegmentCircle(s, c));
-        }
+// for (Segment s : inside_circle) {
+// // assertEmpty(Helpers.intersectSegmentCircle(s, c));
+// }
 
-    }
+// }
 
-}
+// }
