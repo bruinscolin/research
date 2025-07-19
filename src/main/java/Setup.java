@@ -4,8 +4,8 @@ public class Setup {
     public static DrawingCanvas main(Point target, Segment[] o) {
         // Example input values
 
-        int w = 1400;
-        int h = 1000;
+        int w = 2400;
+        int h = 2000;
         Point t = target;
 
         Segment[] obstacles = o;

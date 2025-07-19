@@ -77,10 +77,7 @@ public class Helpers {
         if ((o1 * o2 < 0) && (o3 * o4 < 0)) {
             return true;
         }
-        if (o1 == 0 && o2 == 0 && o3 == 0 && o4 == 0) {
-            return doCollinearSegmentsOverlap(s1, s2);
-        }
-        // Optionally: handle collinear + overlapping edge cases here if needed
+
         return false;
     }
 

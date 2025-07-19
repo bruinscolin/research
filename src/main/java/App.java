@@ -216,7 +216,7 @@ public class App {
 
         // note that 10,000 is used because it is larger than S
         // if S is increased, this value may need to be scaled
-        Point closest_intersect_point = new Point(10000, 10000);
+        Point closest_intersect_point = c0;
 
         for (Segment obstacle : o) {
             // if obstacle intersects b0c0
@@ -234,10 +234,10 @@ public class App {
 
         }
 
-        // if no obstacles intersect b0c0, closest point (c') is c0
-        // if (closest_intersect_point.equals(new Point(10000, 10000))) {
-        //     closest_intersect_point = c0;
-        // }
+        closest_intersect_point.setLabel("c'");
+        dc.addPoint(closest_intersect_point);
+
+
         System.out.print('\n');
 
     }
