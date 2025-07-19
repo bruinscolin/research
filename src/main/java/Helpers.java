@@ -292,6 +292,35 @@ public class Helpers {
         double s2x2 = s2.getX2();
         double s2y2 = s2.getY2();
 
+        // Check if either line is vertical
+        boolean s1Vertical = Math.abs(s1x2 - s1x1) < 1e-10;
+        boolean s2Vertical = Math.abs(s2x2 - s2x1) < 1e-10;
+        
+        if (s1Vertical && s2Vertical) {
+            // if both are vertical
+            // won't happen if only called with intersect function
+            return null;
+        }
+        else if (s1Vertical) {
+            // First line is vertical: x = s1x1
+            double slope2 = (s2y2 - s2y1) / (s2x2 - s2x1);
+            double y2_intercept = s2y1 - slope2 * s2x1;
+            double x = s1x1;
+            double y = slope2 * x + y2_intercept;
+            return new Point(x, y);
+        }
+        else if (s2Vertical) {
+            // Second line is vertical: x = s2x1
+            double slope1 = (s1y2 - s1y1) / (s1x2 - s1x1);
+            double y1_intercept = s1y1 - slope1 * s1x1;
+            double x = s2x1;
+            double y = slope1 * x + y1_intercept;
+            return new Point(x, y);
+        }
+
+
+
+
         double slope1 = (s1y2 - s1y1) / (s1x2 - s1x1);
         double slope2 = (s2y2 - s2y1) / (s2x2 - s2x1);
 
@@ -301,8 +330,17 @@ public class Helpers {
         // set equations equal to each other
         // m1x + b1 = m2x + b2
 
-        double x = (y2_intercept - y2_intercept) / (slope1 - slope2);
+        double x = (y2_intercept - y1_intercept) / (slope1 - slope2);
         double y = (slope1 * x) + y1_intercept;
+
+
+
+
+
+
+
+
+
 
         return new Point(x, y);
     }

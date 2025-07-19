@@ -13,14 +13,14 @@ public class App {
 
         Point target = new Point(0, 0);
 
-        // Segment[] obstacles = {
-        // new Segment(new Point(600, 600), new Point(700, 700)),
-        // new Segment(new Point(100, 100), new Point(240, 610)),
-        // new Segment(new Point(639, 367), new Point(673, 749))};
 
         Segment[] obstacles = {
                 new Segment(new Point(-230, -125), new Point(-100, -250)),
                 new Segment(new Point(-300, -150), new Point(-250, -50)),
+
+                new Segment(new Point(10, -30), new Point(50, -30)),
+                // new Segment(new Point(45, -20 ), new Point(45, -50)),
+               
 
                 // new Segment(new Point(10, -5), new Point(20, -20)), // sector not free
                 // new Segment(new Point(20, -20), new Point(40, 0)), // sector, arc not free
@@ -45,16 +45,16 @@ public class App {
         }
 
         // Each ray originates at v and passes through a point u ∈ V \ {v}
-        // for (int i = 0; i < endpoints.size(); i++) {
+        for (int i = 0; i < endpoints.size(); i++) {
 
-        // for (int j = 0; j < endpoints.size(); j++){
+        for (int j = 0; j < endpoints.size(); j++){
 
-        // if (endpoints.get(i).equals(endpoints.get(j))){
-        // continue; // if the u and v are the same, ignore
-        // }
+        if (endpoints.get(i).equals(endpoints.get(j))){
+        continue; // if the u and v are the same, ignore
+        }
 
-        int i = 2;
-        int j = 0;
+        // int i = 2; // 2
+        // int j = 0; // 0
 
         Point u = endpoints.get(i);
         Point v = endpoints.get(j);
@@ -195,8 +195,13 @@ public class App {
         if (b0c0_angle < 0)
             b0c0_angle += 360;
 
-        dc.addSector(b0, b0c0_distance, b0c0_angle, b0t_angle);
+        if (Helpers.orientationTest(b0, c0, t) > 0){
 
+            dc.addSector(b0, b0c0_distance, b0c0_angle, b0t_angle);
+        }
+        else{
+            dc.addSector(b0, b0c0_distance, b0t_angle, b0c0_angle);
+        }
         // end of A1
         // Start of A2
 
@@ -211,11 +216,12 @@ public class App {
         // end of A2
         // start of A3
 
+        dc.waitForKey(' '); // or whatever key you want to use to continue
+
         // Find the closest point c0 ∈ b0c0 to c0 such that
         // b0c0 does not intersect any obstacle
 
-        // note that 10,000 is used because it is larger than S
-        // if S is increased, this value may need to be scaled
+
         Point closest_intersect_point = c0;
 
         for (Segment obstacle : o) {
@@ -226,6 +232,8 @@ public class App {
                 // find closest point to b0
                 if (Helpers.pointDistance(b0, current_intersect_point) < Helpers.pointDistance(b0,
                         closest_intersect_point)) {
+
+
                     closest_intersect_point = new Point(current_intersect_point.getX(), current_intersect_point.getY());
 
                 }
@@ -234,7 +242,13 @@ public class App {
 
         }
 
-        closest_intersect_point.setLabel("c'");
+        if (closest_intersect_point.equals(c0)){
+            closest_intersect_point.setLabel("c0 & c'");
+
+        }
+        else{
+            closest_intersect_point.setLabel("c'");
+        }
         dc.addPoint(closest_intersect_point);
 
 
@@ -242,7 +256,7 @@ public class App {
 
     }
 
-    // }
-    // }
+    }
+    }
 
 }
