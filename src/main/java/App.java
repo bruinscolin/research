@@ -1,7 +1,6 @@
 // visit https://users.csc.calpoly.edu/~kteo/pub/cgta21_1.pdf 
 // to see the original paper
 
-import java.awt.image.PixelGrabber;
 import java.util.ArrayList;
 import java.util.List;
 // import static Helpers.*;
@@ -13,20 +12,20 @@ public class App {
 
         Point target = new Point(0, 0);
 
-
         Segment[] obstacles = {
                 new Segment(new Point(-230, -125), new Point(-100, -250)),
                 new Segment(new Point(-300, -150), new Point(-250, -50)),
 
-                new Segment(new Point(10, -30), new Point(50, -30)),
+                new Segment(new Point(20, -30), new Point(50, -30)),
                 // new Segment(new Point(45, -20 ), new Point(45, -50)),
-               
 
                 // new Segment(new Point(10, -5), new Point(20, -20)), // sector not free
                 // new Segment(new Point(20, -20), new Point(40, 0)), // sector, arc not free
                 // new Segment(new Point(40, 0), new Point(40, -40)), // sector, arc not free
 
                 // new Segment(new Point(0, 0), new Point(0, 0)) // works
+
+                new Segment(new Point(-30, -40), new Point(-40, -50))
 
         };
         DrawingCanvas dc = Setup.main(target, obstacles);
@@ -45,16 +44,16 @@ public class App {
         }
 
         // Each ray originates at v and passes through a point u ∈ V \ {v}
-        for (int i = 0; i < endpoints.size(); i++) {
+        // for (int i = 0; i < endpoints.size(); i++) {
 
-        for (int j = 0; j < endpoints.size(); j++){
+        // for (int j = 0; j < endpoints.size(); j++){
 
-        if (endpoints.get(i).equals(endpoints.get(j))){
-        continue; // if the u and v are the same, ignore
-        }
+        // if (endpoints.get(i).equals(endpoints.get(j))){
+        // continue; // if the u and v are the same, ignore
+        // }
 
-        // int i = 2; // 2
-        // int j = 0; // 0
+        int i = 2; // 2
+        int j = 0; // 0
 
         Point u = endpoints.get(i);
         Point v = endpoints.get(j);
@@ -195,12 +194,11 @@ public class App {
         if (b0c0_angle < 0)
             b0c0_angle += 360;
 
-        if (Helpers.orientationTest(b0, c0, t) > 0){
+        if (Helpers.orientationTest(b0, c0, t) > 0) {
 
-            dc.addSector(b0, b0c0_distance, b0c0_angle, b0t_angle);
-        }
-        else{
-            dc.addSector(b0, b0c0_distance, b0t_angle, b0c0_angle);
+            dc.addSector(b0, b0c0_distance, b0c0_angle, b0t_angle, -1);
+        } else {
+            dc.addSector(b0, b0c0_distance, b0t_angle, b0c0_angle, -1);
         }
         // end of A1
         // Start of A2
@@ -221,7 +219,6 @@ public class App {
         // Find the closest point c0 ∈ b0c0 to c0 such that
         // b0c0 does not intersect any obstacle
 
-
         Point closest_intersect_point = c0;
 
         for (Segment obstacle : o) {
@@ -233,7 +230,6 @@ public class App {
                 if (Helpers.pointDistance(b0, current_intersect_point) < Helpers.pointDistance(b0,
                         closest_intersect_point)) {
 
-
                     closest_intersect_point = new Point(current_intersect_point.getX(), current_intersect_point.getY());
 
                 }
@@ -242,21 +238,166 @@ public class App {
 
         }
 
-        if (closest_intersect_point.equals(c0)){
+        if (closest_intersect_point.equals(c0)) {
             closest_intersect_point.setLabel("c0 & c'");
 
-        }
-        else{
+        } else {
             closest_intersect_point.setLabel("c'");
         }
-        dc.addPoint(closest_intersect_point);
 
+        closest_intersect_point.setColor("red");
+
+        dc.addPoint(closest_intersect_point);
+        Point cp = closest_intersect_point;
+        cp.print();
+        // find b'
+        // circle through c' and t, cetnered at b'
+        Point bp;
+
+        if (cp.equals(c0)) {
+            bp = b0;
+            bp.setLabel("b0 & b'");
+
+        } else {
+
+            double dx = v.getX() - u.getX();
+            double dy = v.getY() - u.getY();
+
+            // Vectors from u to each point
+            double cx = cp.getX() - u.getX();
+            double cy = cp.getY() - u.getY();
+            double tx = t.getX() - u.getX();
+            double ty = t.getY() - u.getY();
+
+            // Solve: |u + t*(v-u) - c'| = |u + t*(v-u) - t|
+            // This gives us: t = (cx² + cy² - tx² - ty²) / (2*(cx-tx)*dx + 2*(cy-ty)*dy)
+            double numerator = cx * cx + cy * cy - tx * tx - ty * ty;
+            double denominator = 2 * ((cx - tx) * dx + (cy - ty) * dy);
+            double t_param = numerator / denominator;
+
+            // Calculate b'
+            double bp_x = u.getX() + t_param * dx;
+
+            double bp_y = u.getY() + t_param * dy;
+            bp = new Point(bp_x, bp_y);
+
+            // System.out.print("Radius: " + cp_t_radius + '\n');
+            System.out.print("b'c' distance: " + Helpers.pointDistance(bp, cp) + '\n');
+            System.out.print("b't distance: " + Helpers.pointDistance(bp, t));
+        }
+        bp.setLabel("b'");
+        bp.setColor("red");
+
+        dc.addPoint(bp);
+
+        double radius = Helpers.pointDistance(bp, cp);
+
+        // draw b'c' sector
+        // dc.addSector(b0, b0c0_distance, b0c0_angle, b0t_angle);
+        double bp_t_angle = Math.atan2(t.getY() - bp.getY(), t.getX() - bp.getX());
+        double bp_cp_angle = Math.atan2(cp.getY() - bp.getY(), cp.getX() - bp.getX());
+
+        bp_t_angle = Math.toDegrees(bp_t_angle);
+        bp_cp_angle = Math.toDegrees(bp_cp_angle);
+
+        if (bp_t_angle < 0)
+            bp_t_angle += 360;
+        if (bp_cp_angle < 0)
+            bp_cp_angle += 360;
+        if (Helpers.orientationTest(bp, cp, t) > 0) {
+            dc.addSector(bp, radius, bp_cp_angle, bp_t_angle, 0);
+        } else {
+            dc.addSector(bp, radius, bp_t_angle, bp_cp_angle, 0);
+        }
+        // end of A3
+        // start of A4
+
+        // check if b't intersects obstacles
+        Segment bpt = new Segment(bp, t);
+
+        for (Segment s : o) {
+            if (Helpers.segment_segment_intersect(s, bpt)) {
+                System.out.print("b't intersects with obstacle. Failure.");
+                break;
+            }
+        }
+
+        dc.waitForKey(' ');
+        // end of A4
+        // start of A5
+
+        Point bpp = bp;
+
+        Point closest = v;
+
+        Segment bppt = new Segment(t, bp);
+        Segment vbp = new Segment(v, bp);
+
+        for (Point p : endpoints) {
+            // check if p is in triangle formed by v, t, and b'
+            if (!Helpers.isPointInTriangle(p, v, t, bp)) {
+                continue;
+
+            }
+            // create ray from t to endpoint
+            double t_endpoint_angle = Math.atan2(p.getY() - t.getY(), p.getX() - t.getX());
+
+            // for creating a segment to check for intersect with vb'
+            // 5000 may have to change depending on S
+
+            Point ray_endpoint = new Point(t.getX() + 10000 * Math.cos(t_endpoint_angle),
+                    t.getY() + 10000 * Math.sin(t_endpoint_angle));
+
+            Segment t_ray = new Segment(t, ray_endpoint);
+            // dc.addSegment(t_ray);
+
+            if (Helpers.segment_segment_intersect(t_ray, vbp)) {
+                Point current_point = Helpers.getSegmentSegmentIntersectPoint(t_ray, vbp);
+
+                // un-comment below to see rays
+                // dc.addSegment(t_ray);
+
+                if (Helpers.pointDistance(current_point, bp) < Helpers.pointDistance(closest, bp)) {
+
+                    closest = new Point(current_point.getX(), current_point.getY());
+                }
+            }
+
+        }
+
+        bpp = closest;
+        if (bpp.equals(v)) {
+            bpp = bp;
+
+        }
+        if (bpp.equals(bp)) {
+            bpp.setLabel("b' & b''");
+
+        } else {
+            bpp.setLabel("b''");
+        }
+        bpp.setColor("green");
+        dc.addPoint(bpp);
+
+        // find c''
+        double bppt_radius = Helpers.pointDistance(bpp, t);
+
+        double cpp_x = bpp.getX() + bppt_radius * Math.cos(ray_angle);
+        double cpp_y = bpp.getY() + bppt_radius * Math.sin(ray_angle);
+
+        Point cpp = new Point(cpp_x, cpp_y);
+        cpp.setColor("green");
+        cpp.setLabel("c''");
+        dc.addPoint(cpp);
+
+        // end of A5
+        // start of A6
 
         System.out.print('\n');
 
     }
 
-    }
-    }
+    // }
+    // }
 
 }

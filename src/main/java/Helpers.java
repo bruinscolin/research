@@ -83,42 +83,6 @@ public class Helpers {
 
     // Helper method to check if collinear segments overlap (excluding just touching
     // at endpoints)
-    private static boolean doCollinearSegmentsOverlap(Segment s1, Segment s2) {
-        Point p1 = s1.getP1();
-        Point q1 = s1.getP2();
-        Point p2 = s2.getP1();
-        Point q2 = s2.getP2();
-
-        // Check overlap in x-direction
-        double s1_min_x = Math.min(p1.getX(), q1.getX());
-        double s1_max_x = Math.max(p1.getX(), q1.getX());
-        double s2_min_x = Math.min(p2.getX(), q2.getX());
-        double s2_max_x = Math.max(p2.getX(), q2.getX());
-
-        // Check overlap in y-direction
-        double s1_min_y = Math.min(p1.getY(), q1.getY());
-        double s1_max_y = Math.max(p1.getY(), q1.getY());
-        double s2_min_y = Math.min(p2.getY(), q2.getY());
-        double s2_max_y = Math.max(p2.getY(), q2.getY());
-
-        // Segments overlap if they overlap in both x and y directions
-        // Using > instead of >= to exclude just touching at endpoints
-        boolean x_overlap = (s1_max_x > s2_min_x) && (s2_max_x > s1_min_x);
-        boolean y_overlap = (s1_max_y > s2_min_y) && (s2_max_y > s1_min_y);
-
-        // Special case: if both segments are on the same line (horizontal or vertical)
-        // we only need to check the dimension that varies
-        if (s1_min_y == s1_max_y && s2_min_y == s2_max_y && s1_min_y == s2_min_y) {
-            // Both segments are horizontal on the same line
-            return x_overlap;
-        }
-        if (s1_min_x == s1_max_x && s2_min_x == s2_max_x && s1_min_x == s2_min_x) {
-            // Both segments are vertical on the same line
-            return y_overlap;
-        }
-
-        return x_overlap && y_overlap;
-    }
 
     // USE ORIENTATIONTEST FOR ARC CHECK
     public static boolean arc_segment_intersect(Segment a1, Segment a2, Segment q) {
@@ -295,21 +259,19 @@ public class Helpers {
         // Check if either line is vertical
         boolean s1Vertical = Math.abs(s1x2 - s1x1) < 1e-10;
         boolean s2Vertical = Math.abs(s2x2 - s2x1) < 1e-10;
-        
+
         if (s1Vertical && s2Vertical) {
             // if both are vertical
             // won't happen if only called with intersect function
             return null;
-        }
-        else if (s1Vertical) {
+        } else if (s1Vertical) {
             // First line is vertical: x = s1x1
             double slope2 = (s2y2 - s2y1) / (s2x2 - s2x1);
             double y2_intercept = s2y1 - slope2 * s2x1;
             double x = s1x1;
             double y = slope2 * x + y2_intercept;
             return new Point(x, y);
-        }
-        else if (s2Vertical) {
+        } else if (s2Vertical) {
             // Second line is vertical: x = s2x1
             double slope1 = (s1y2 - s1y1) / (s1x2 - s1x1);
             double y1_intercept = s1y1 - slope1 * s1x1;
@@ -317,9 +279,6 @@ public class Helpers {
             double y = slope1 * x + y1_intercept;
             return new Point(x, y);
         }
-
-
-
 
         double slope1 = (s1y2 - s1y1) / (s1x2 - s1x1);
         double slope2 = (s2y2 - s2y1) / (s2x2 - s2x1);
@@ -333,16 +292,19 @@ public class Helpers {
         double x = (y2_intercept - y1_intercept) / (slope1 - slope2);
         double y = (slope1 * x) + y1_intercept;
 
-
-
-
-
-
-
-
-
-
         return new Point(x, y);
+    }
+
+    public static boolean isPointInTriangle(Point p, Point a, Point b, Point c) {
+
+        // a = v, b = t, c = bp
+
+        double or1 = orientationTest(a, b, p);
+        double or2 = orientationTest(c, a, p);
+        double or3 = orientationTest(b, c, p);
+
+        return (or1 >= 0 && or2 >= 0 && or3 >= 0) || (or1 <= 0 && or2 <= 0 && or3 <= 0);
+
     }
 
 }

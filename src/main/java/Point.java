@@ -8,7 +8,7 @@ public class Point {
     private double drx;
     private double dry;
     private String label;
-
+    private String color;
 
     public Point(double x, double y) {
         this.x = x;
@@ -18,9 +18,9 @@ public class Point {
         this.dry = 500 - y; // width or height of drawing scene changes
 
         this.label = "";
+        this.color = "black";
 
     }
-
 
     public void set(double x, double y) {
         this.x = x;
@@ -38,34 +38,43 @@ public class Point {
         return y;
     }
 
-    public double getDrX(){
+    public double getDrX() {
         return this.drx;
 
     }
 
-    public double getDrY(){
+    public double getDrY() {
         return this.dry;
     }
-    public boolean equals(Point p2){
-        if (this.x == p2.getX() && this.y == p2.getY()){
+
+    public boolean equals(Point p2) {
+        if (this.x == p2.getX() && this.y == p2.getY()) {
             return true;
 
         }
         return false;
     }
 
-    public void print(){
+    public void print() {
         System.out.println("X: " + this.x + " Y: " + this.y);
 
     }
-    
-    public void setLabel(String s){
+
+    public void setLabel(String s) {
         this.label = s;
 
     }
 
-    public String getLabel(){
+    public String getLabel() {
         return this.label;
+    }
+
+    public void setColor(String s) {
+        this.color = s;
+    }
+
+    public String getColor() {
+        return this.color;
     }
 
 }
