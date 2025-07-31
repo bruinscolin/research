@@ -392,6 +392,27 @@ public class App {
 
         // end of A5
         // start of A6
+        Segment bpcpp = new Segment(bp, cpp);
+
+        for (Segment q : o) {
+            if (Helpers.segment_segment_intersect(bpcpp, q) || Helpers.segment_segment_intersect(bpt, q)) {
+                System.out.println("Sector is not free");
+                // break;
+            }
+
+            if (Helpers.arc_segment_intersect(bpcpp, bpt, q)) {
+                System.out.println("Arc line is not free");
+                // break;
+            }
+        }
+
+        for (Point p : endpoints) {
+            if (!Helpers.isSectorEmpty(bpcpp, bpt, p)) {
+                System.out.println("Sector is not empty");
+                p.print();
+                // break;
+            }
+        }
 
         System.out.print('\n');
 
