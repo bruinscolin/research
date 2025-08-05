@@ -56,7 +56,12 @@ public class Point {
     }
 
     public void print() {
-        System.out.println("X: " + this.x + " Y: " + this.y);
+        if (this.label == "") {
+            System.out.println("X: " + this.x + " Y: " + this.y);
+        } else {
+            System.out.println("Point " + this.label + " : " + "X: " + this.x + " Y: " + this.y);
+
+        }
 
     }
 

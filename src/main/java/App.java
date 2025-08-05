@@ -111,7 +111,7 @@ public class App {
         Segment u_b0 = new Segment(u, b0);
         dc.addSegment(u_b0);
 
-        System.out.print("Tangent point is: ");
+        // System.out.print("Tangent point is: ");
         tan_point.print();
 
         // check ray reversal from b0
@@ -131,7 +131,7 @@ public class App {
         Point c0 = new Point(c0_x, c0_y);
         c0.setLabel("c0");
 
-        System.out.print("c0: ");
+        // System.out.print("c0: ");
         c0.print();
 
         // check if b0c0 intersects with any lines
@@ -233,7 +233,6 @@ public class App {
                     closest_intersect_point = new Point(current_intersect_point.getX(), current_intersect_point.getY());
 
                 }
-
             }
 
         }
@@ -263,25 +262,24 @@ public class App {
             double dx = v.getX() - u.getX();
             double dy = v.getY() - u.getY();
 
-            // Vectors from u to each point
+            // vectors from u to each point
             double cx = cp.getX() - u.getX();
             double cy = cp.getY() - u.getY();
             double tx = t.getX() - u.getX();
             double ty = t.getY() - u.getY();
 
-            // Solve: |u + t*(v-u) - c'| = |u + t*(v-u) - t|
-            // This gives us: t = (cx² + cy² - tx² - ty²) / (2*(cx-tx)*dx + 2*(cy-ty)*dy)
+            // |u + t*(v-u) - c'| = |u + t*(v-u) - t|
+            // t = (cx² + cy² - tx² - ty²) / (2*(cx-tx)*dx + 2*(cy-ty)*dy)
             double numerator = cx * cx + cy * cy - tx * tx - ty * ty;
             double denominator = 2 * ((cx - tx) * dx + (cy - ty) * dy);
             double t_param = numerator / denominator;
 
-            // Calculate b'
+            // calculate b'
             double bp_x = u.getX() + t_param * dx;
 
             double bp_y = u.getY() + t_param * dy;
             bp = new Point(bp_x, bp_y);
 
-            // System.out.print("Radius: " + cp_t_radius + '\n');
             System.out.print("b'c' distance: " + Helpers.pointDistance(bp, cp) + '\n');
             System.out.print("b't distance: " + Helpers.pointDistance(bp, t));
         }
@@ -327,18 +325,15 @@ public class App {
         // start of A5
 
         Point bpp = bp;
-
         Point closest = v;
-
-        Segment bppt = new Segment(t, bp);
         Segment vbp = new Segment(v, bp);
 
         for (Point p : endpoints) {
             // check if p is in triangle formed by v, t, and b'
-            if (!Helpers.isPointInTriangle(p, v, t, bp)) {
-                continue;
+            // if (!Helpers.isPointInTriangle(p, v, t, bp)) {
+            // continue;
 
-            }
+            // }
             // create ray from t to endpoint
             double t_endpoint_angle = Math.atan2(p.getY() - t.getY(), p.getX() - t.getX());
 
@@ -390,6 +385,27 @@ public class App {
         cpp.setLabel("c''");
         dc.addPoint(cpp);
 
+        // start of adding b'' sector
+        double bpp_t_angle = Math.atan2(t.getY() - bpp.getY(), t.getX() - bpp.getX());
+        double bpp_cpp_angle = Math.atan2(cpp.getY() - bpp.getY(), cpp.getX() - bpp.getX());
+
+        bpp_t_angle = Math.toDegrees(bpp_t_angle);
+        bpp_cpp_angle = Math.toDegrees(bpp_cpp_angle);
+
+        if (bpp_t_angle < 0)
+            bpp_t_angle += 360;
+        if (bpp_cpp_angle < 0)
+            bpp_cpp_angle += 360;
+
+        double double_sector_radius = Helpers.pointDistance(bpp, cpp);
+
+        if (Helpers.orientationTest(bpp, cpp, t) > 0) {
+            dc.addSector(bpp, double_sector_radius, bpp_cpp_angle, bpp_t_angle, 1);
+        } else {
+            dc.addSector(bpp, double_sector_radius, bpp_t_angle, bpp_cpp_angle, 1);
+        }
+        // end of adding b'' sector
+
         // end of A5
         // start of A6
         Segment bpcpp = new Segment(bp, cpp);
@@ -414,6 +430,8 @@ public class App {
             }
         }
 
+        // end of A6
+        // start of A7
         System.out.print('\n');
 
     }
