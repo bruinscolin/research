@@ -17,6 +17,7 @@ public class App {
                 new Segment(new Point(-300, -150), new Point(-250, -50)),
 
                 new Segment(new Point(20, -10), new Point(50, -30)),
+                new Segment(new Point(15, -10), new Point(50, -30)),
                 // new Segment(new Point(45, -20 ), new Point(45, -50)),
 
                 // new Segment(new Point(10, -5), new Point(20, -20)), // sector not free
@@ -25,7 +26,9 @@ public class App {
 
                 // new Segment(new Point(0, 0), new Point(0, 0)) // works
 
-                new Segment(new Point(-30, -40), new Point(-40, -50))
+                new Segment(new Point(-30, -40), new Point(-40, -50)),
+
+                
 
         };
         DrawingCanvas dc = Setup.main(target, obstacles);
@@ -289,8 +292,9 @@ public class App {
 
             System.out.print("b'c' distance: " + Helpers.pointDistance(bp, cp) + '\n');
             System.out.print("b't distance: " + Helpers.pointDistance(bp, t));
+            bp.setLabel("b'");
         }
-        bp.setLabel("b'");
+        // bp.setLabel("b'");
         bp.setColor("red");
 
         dc.addPoint(bp);
