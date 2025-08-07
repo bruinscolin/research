@@ -16,7 +16,7 @@ public class App {
                 new Segment(new Point(-230, -125), new Point(-100, -250)),
                 new Segment(new Point(-300, -150), new Point(-250, -50)),
 
-                new Segment(new Point(20, -30), new Point(50, -30)),
+                new Segment(new Point(20, -10), new Point(50, -30)),
                 // new Segment(new Point(45, -20 ), new Point(45, -50)),
 
                 // new Segment(new Point(10, -5), new Point(20, -20)), // sector not free
@@ -263,15 +263,22 @@ public class App {
             double dy = v.getY() - u.getY();
 
             // vectors from u to each point
-            double cx = cp.getX() - u.getX();
-            double cy = cp.getY() - u.getY();
-            double tx = t.getX() - u.getX();
-            double ty = t.getY() - u.getY();
+            double A1 = cp.getX() - u.getX();
+            double B1 = cp.getY() - u.getY();
+            double A2 = t.getX() - u.getX();
+            double B2 = t.getY() - u.getY();
 
-            // |u + t*(v-u) - c'| = |u + t*(v-u) - t|
-            // t = (cx² + cy² - tx² - ty²) / (2*(cx-tx)*dx + 2*(cy-ty)*dy)
-            double numerator = cx * cx + cy * cy - tx * tx - ty * ty;
-            double denominator = 2 * ((cx - tx) * dx + (cy - ty) * dy);
+            // A1 = x1 - ux
+            // A2 = x2 - ux
+            // B1 = y1 - uy
+            // B2 = y2 - uy
+
+            // xc = ux + t * dx
+            // yc = uy + t * dy
+
+            // t = (A1² - A2² + B1² - B2²) / 2(A1dx - A2dx + B1dy - B2dy)
+            double numerator = A1 * A1 + B1 * B1 - A2 * A2 - B2 * B2;
+            double denominator = 2 * ((A1 - A2) * dx + (B1 - B2) * dy);
             double t_param = numerator / denominator;
 
             // calculate b'
@@ -329,11 +336,12 @@ public class App {
         Segment vbp = new Segment(v, bp);
 
         for (Point p : endpoints) {
-            // check if p is in triangle formed by v, t, and b'
-            // if (!Helpers.isPointInTriangle(p, v, t, bp)) {
-            // continue;
 
-            // }
+            // check if p is on the same side of ray as t
+            if (Helpers.orientationTest(v, bp, p) * Helpers.orientationTest(v, bp, t) < 0) {
+                continue;
+
+            }
             // create ray from t to endpoint
             double t_endpoint_angle = Math.atan2(p.getY() - t.getY(), p.getX() - t.getX());
 
@@ -386,6 +394,7 @@ public class App {
         dc.addPoint(cpp);
 
         // start of adding b'' sector
+        // drawing logic only
         double bpp_t_angle = Math.atan2(t.getY() - bpp.getY(), t.getX() - bpp.getX());
         double bpp_cpp_angle = Math.atan2(cpp.getY() - bpp.getY(), cpp.getX() - bpp.getX());
 
@@ -408,6 +417,7 @@ public class App {
 
         // end of A5
         // start of A6
+
         Segment bpcpp = new Segment(bp, cpp);
 
         for (Segment q : o) {
@@ -429,9 +439,66 @@ public class App {
                 // break;
             }
         }
-
+        dc.waitForKey(' ');
         // end of A6
         // start of A7
+
+        // find b'''
+        // based off previous findings, b''' is between b'' and b'
+
+        Point bppp = new Point(bpp.getX(), bpp.getY());
+        Point cppp = cpp;
+
+        double b_distance = Helpers.pointDistance(bpp, bp);
+        double step = b_distance / 1000;
+
+        boolean point_found = false;
+
+        for (int s = 0; s < 1000; s++) {
+
+            double point_x = bpp.getX() + (step * s) * Math.cos(ray_angle);
+            double point_y = bpp.getY() + (step * s) * Math.sin(ray_angle);
+
+            // test b''' sliding along
+            Point test_point = new Point(point_x, point_y);
+
+            double test_radius = Helpers.pointDistance(test_point, t);
+
+            double test_c_x = point_x + test_radius * Math.cos(ray_angle);
+            double test_c_y = point_y + test_radius * Math.sin(ray_angle);
+
+            Point test_c = new Point(test_c_x, test_c_y);
+
+            Segment bound = new Segment(test_point, test_c);
+            Segment test_b_t = new Segment(test_point, t);
+
+            for (Segment q : o) {
+                if (Helpers.arc_segment_intersect(bound, test_b_t, q)) {
+                    bppp = test_point;
+                    cppp = test_c;
+
+                    point_found = true;
+                    break;
+                }
+            }
+
+            if (point_found) {
+                break;
+            }
+
+        }
+
+        dc.addPoint(bppp);
+        dc.addPoint(cppp);
+
+        Circle asdf = new Circle(bppp, Helpers.pointDistance(bppp, t));
+
+        dc.addCircle(asdf);
+        // dc.addSector(bppp, b0c0_distance, b0c0_angle, b0t_angle, -1);
+        // create circle/sector, check if any points are in range
+        // if so, find distance from intersect to radius, shift b'''
+        // that distance
+
         System.out.print('\n');
 
     }
