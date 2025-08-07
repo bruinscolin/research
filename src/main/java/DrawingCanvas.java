@@ -206,7 +206,9 @@ public class DrawingCanvas extends JComponent {
             double y2 = scaleAroundCenter(s.getDrY2(), center_y);
 
             Line2D.Double line = new Line2D.Double(x1, y1, x2, y2);
-            g2d.setColor(Color.BLUE);
+            Color purple = new Color(96, 9, 158);
+
+            g2d.setColor(purple);
             g2d.draw(line);
         }
         g2d.setStroke(new BasicStroke(1));

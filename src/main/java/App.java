@@ -444,60 +444,103 @@ public class App {
         // start of A7
 
         // find b'''
-        // based off previous findings, b''' is between b'' and b'
+        // b''' is between b'' and b'
 
-        Point bppp = new Point(bpp.getX(), bpp.getY());
-        Point cppp = cpp;
+        Point b3p = new Point(bpp.getX(), bpp.getY());
+        Point c3p = cpp;
 
         double b_distance = Helpers.pointDistance(bpp, bp);
         double step = b_distance / 1000;
 
+        // is intersection found
         boolean point_found = false;
 
         for (int s = 0; s < 1000; s++) {
 
-            double point_x = bpp.getX() + (step * s) * Math.cos(ray_angle);
-            double point_y = bpp.getY() + (step * s) * Math.sin(ray_angle);
+            double temp_b3_x = bpp.getX() + (step * s) * Math.cos(ray_angle);
+            double temp_b3_y = bpp.getY() + (step * s) * Math.sin(ray_angle);
 
-            // test b''' sliding along
-            Point test_point = new Point(point_x, point_y);
+            Point temp_b3 = new Point(temp_b3_x, temp_b3_y);
+            
+            // sector radius
+            double temp_radius = Helpers.pointDistance(temp_b3, t);
+            
+            // find c'''
+            double temp_c3_x = temp_b3_x + temp_radius * Math.cos(ray_angle);
+            double temp_c3_y = temp_b3_y + temp_radius * Math.sin(ray_angle);
 
-            double test_radius = Helpers.pointDistance(test_point, t);
+            Point temp_c3 = new Point(temp_c3_x, temp_c3_y);
 
-            double test_c_x = point_x + test_radius * Math.cos(ray_angle);
-            double test_c_y = point_y + test_radius * Math.sin(ray_angle);
-
-            Point test_c = new Point(test_c_x, test_c_y);
-
-            Segment bound = new Segment(test_point, test_c);
-            Segment test_b_t = new Segment(test_point, t);
+            // define sector bounds (straight lines)
+            Segment bound = new Segment(temp_b3, temp_c3);
+            Segment test_b_t = new Segment(temp_b3, t);
 
             for (Segment q : o) {
+
+                // if sector intersects any obstacle, set b'''
                 if (Helpers.arc_segment_intersect(bound, test_b_t, q)) {
-                    bppp = test_point;
-                    cppp = test_c;
+                    b3p = temp_b3;
+                    c3p = temp_c3;
 
                     point_found = true;
                     break;
                 }
             }
-
+            
+            // found closest point, stop
             if (point_found) {
                 break;
             }
 
         }
+        
+        // if no intersections, b''' is b''
+        if (!point_found){
+            b3p = bpp;
+            b3p.setLabel("b'' & b'''");
 
-        dc.addPoint(bppp);
-        dc.addPoint(cppp);
+            c3p = cpp;
+            c3p.setLabel("c'' & c '''");
+        }
+        else{
+            b3p.setLabel("b'''");
+            c3p.setLabel("c'''");
+        }
 
-        Circle asdf = new Circle(bppp, Helpers.pointDistance(bppp, t));
 
-        dc.addCircle(asdf);
-        // dc.addSector(bppp, b0c0_distance, b0c0_angle, b0t_angle, -1);
-        // create circle/sector, check if any points are in range
-        // if so, find distance from intersect to radius, shift b'''
-        // that distance
+        b3p.setColor("blue");
+        c3p.setColor("blue");
+        dc.addPoint(b3p);
+        dc.addPoint(c3p);
+
+        // sector drawing logic
+        
+        double b3c3_distance = Helpers.pointDistance(b3p, c3p);
+
+        double b3t_x_dist = t.getX() - b3p.getX();
+        double b3t_y_dist = t.getY() - b3p.getY();
+        double b3t_angle = Math.atan2(b3t_y_dist, b3t_x_dist);
+
+        // find angle between b''' and c'''
+        double b3c3_x_dist = c3p.getX() - b3p.getX();
+        double b3c3_y_dist = c3p.getY() - b3p.getY();
+        double b3c3_angle = Math.atan2(b3c3_y_dist, b3c3_x_dist);
+
+        b3t_angle = Math.toDegrees(b3t_angle);
+        b3c3_angle = Math.toDegrees(b3c3_angle);
+
+        // ensure angles are positive (0 to 360 degrees)
+        if (b3t_angle < 0)
+            b3t_angle += 360;
+        if (b3c3_angle < 0)
+            b3c3_angle += 360;
+
+        if (Helpers.orientationTest(b3p, c3p, t) > 0) {
+            dc.addSector(b3p, b3c3_distance, b3c3_angle, b3t_angle, 2);
+        } else {
+            dc.addSector(b3p, b3c3_distance, b3t_angle, b3c3_angle, 2);
+        }
+
 
         System.out.print('\n');
 
