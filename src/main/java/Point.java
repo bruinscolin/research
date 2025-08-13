@@ -82,4 +82,14 @@ public class Point {
         return this.color;
     }
 
+    public PolarPoint toPolar(Point origin) {
+        double dx = this.getX() - origin.getX();
+        double dy = this.getY() - origin.getY();
+
+        double radius = Math.sqrt(dx * dx + dy * dy);
+        double angle = Math.atan2(dy, dx);
+
+        return new PolarPoint(radius, angle);
+    }
+
 }

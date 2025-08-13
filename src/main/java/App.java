@@ -28,8 +28,6 @@ public class App {
 
                 new Segment(new Point(-30, -40), new Point(-40, -50)),
 
-                
-
         };
         DrawingCanvas dc = Setup.main(target, obstacles);
         algo(target, obstacles, dc);
@@ -447,78 +445,101 @@ public class App {
         // end of A6
         // start of A7
 
-        // find b'''
-        // b''' is between b'' and b'
+        Point b3p = bp;
 
-        Point b3p = new Point(bpp.getX(), bpp.getY());
-        Point c3p = cpp;
+        Point closest_b3p = bp;
+        double b3p_sector_radius = 0;
 
-        double b_distance = Helpers.pointDistance(bpp, bp);
-        double step = b_distance / 1000;
+        Segment bpcp = new Segment(bp, cp);
 
-        // is intersection found
-        boolean point_found = false;
+        for (Point p : endpoints) {
+            if (Helpers.isSectorEmpty(bpcp, bpt, p)) {
+                continue;
 
-        for (int s = 0; s < 1000; s++) {
+            }
 
-            double temp_b3_x = bpp.getX() + (step * s) * Math.cos(ray_angle);
-            double temp_b3_y = bpp.getY() + (step * s) * Math.sin(ray_angle);
+            double dx = v.getX() - u.getX();
+            double dy = v.getY() - u.getY();
 
-            Point temp_b3 = new Point(temp_b3_x, temp_b3_y);
-            
-            // sector radius
-            double temp_radius = Helpers.pointDistance(temp_b3, t);
-            
-            // find c'''
-            double temp_c3_x = temp_b3_x + temp_radius * Math.cos(ray_angle);
-            double temp_c3_y = temp_b3_y + temp_radius * Math.sin(ray_angle);
+            // vectors from u to each point
+            double A1 = p.getX() - u.getX();
+            double B1 = p.getY() - u.getY();
+            double A2 = t.getX() - u.getX();
+            double B2 = t.getY() - u.getY();
 
-            Point temp_c3 = new Point(temp_c3_x, temp_c3_y);
+            // A1 = x1 - ux
+            // A2 = x2 - ux
+            // B1 = y1 - uy
+            // B2 = y2 - uy
 
-            // define sector bounds (straight lines)
-            Segment bound = new Segment(temp_b3, temp_c3);
-            Segment test_b_t = new Segment(temp_b3, t);
+            // xc = ux + t * dx
+            // yc = uy + t * dy
 
-            for (Segment q : o) {
+            // t = (A1² - A2² + B1² - B2²) / 2(A1dx - A2dx + B1dy - B2dy)
+            double numerator = A1 * A1 + B1 * B1 - A2 * A2 - B2 * B2;
+            double denominator = 2 * ((A1 - A2) * dx + (B1 - B2) * dy);
+            double t_param = numerator / denominator;
 
-                // if sector intersects any obstacle, set b'''
-                if (Helpers.arc_segment_intersect(bound, test_b_t, q)) {
-                    b3p = temp_b3;
-                    c3p = temp_c3;
+            // calculate b'
+            double b3p_x = u.getX() + t_param * dx;
 
-                    point_found = true;
-                    break;
+            double b3p_y = u.getY() + t_param * dy;
+            closest_b3p = new Point(b3p_x, b3p_y);
+
+            // System.out.print("b'''c' distance: " + Helpers.pointDistance(b3p, p) + '\n');
+            // System.out.print("b'''t distance: " + Helpers.pointDistance(b3p, t));
+
+            if (Helpers.pointDistance(closest_b3p, bp) > Helpers.pointDistance(b3p, bp)) {
+                b3p = closest_b3p;
+                b3p_sector_radius = Helpers.pointDistance(b3p, t);
+
+            }
+
+        }
+
+        // now check for tangencies
+
+        for (Segment obstacle : o) {
+            Point tangent_b3p = Helpers.findFirstTangencyAlongRay(u, v, t, obstacle, ray_angle, bp, bpcp, bpt);
+
+            if (tangent_b3p != null) {
+                System.out
+                        .println("Found tangent center at distance from bp: " + Helpers.pointDistance(tangent_b3p, bp));
+
+                // We want the point FURTHEST from bp (closest to u) - first tangency
+                if (Helpers.pointDistance(tangent_b3p, bp) > Helpers.pointDistance(b3p, bp)) {
+                    b3p = tangent_b3p;
+                    b3p_sector_radius = Helpers.pointDistance(b3p, t);
+                    System.out.println("Updated b3p to tangent point");
                 }
             }
-            
-            // found closest point, stop
-            if (point_found) {
-                break;
-            }
-
         }
-        
-        // if no intersections, b''' is b''
-        if (!point_found){
-            b3p = bpp;
-            b3p.setLabel("b'' & b'''");
 
-            c3p = cpp;
-            c3p.setLabel("c'' & c '''");
-        }
-        else{
+        // check if b''' is b' or b''
+        if (b3p.equals(bpp)) {
+            bpp.setLabel("b'' & b'''");
+        } else if (b3p.equals(bp)) {
+            bp.setLabel("b' & b'''");
+        } else {
             b3p.setLabel("b'''");
-            c3p.setLabel("c'''");
         }
-
-
         b3p.setColor("blue");
-        c3p.setColor("blue");
         dc.addPoint(b3p);
+
+        // find correct c'''
+        double c3p_x = b3p.getX() + b3p_sector_radius * Math.cos(ray_angle);
+        double c3p_y = b3p.getY() + b3p_sector_radius * Math.sin(ray_angle);
+
+        Point c3p = new Point(c3p_x, c3p_y);
+        c3p.setLabel("c'''");
+        c3p.setColor("blue");
         dc.addPoint(c3p);
 
+        System.out.println("b''' c''' distance: " + Helpers.pointDistance(b3p, c3p));
+        System.out.println("b''' t distance: " + Helpers.pointDistance(b3p, t));
+
         // sector drawing logic
-        
+
         double b3c3_distance = Helpers.pointDistance(b3p, c3p);
 
         double b3t_x_dist = t.getX() - b3p.getX();
@@ -545,8 +566,7 @@ public class App {
             dc.addSector(b3p, b3c3_distance, b3t_angle, b3c3_angle, 2);
         }
 
-
-        System.out.print('\n');
+        System.out.println('\n');
 
     }
 

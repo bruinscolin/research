@@ -2,6 +2,7 @@
 *.class
 /src/run.sh
 /src/main/java/run.sh
+/src/main/java/notes.txt
 
 # Ignore Gradle project-specific cache directory
 .gradle
