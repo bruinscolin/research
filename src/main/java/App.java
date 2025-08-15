@@ -16,8 +16,8 @@ public class App {
                 new Segment(new Point(-230, -125), new Point(-100, -250)),
                 new Segment(new Point(-300, -150), new Point(-250, -50)),
 
-                new Segment(new Point(20, -10), new Point(50, -30)),
-                new Segment(new Point(15, -10), new Point(50, -30)),
+                new Segment(new Point(20, 0), new Point(50, -30)),
+                new Segment(new Point(15, 0), new Point(50, -30)),
                 // new Segment(new Point(45, -20 ), new Point(45, -50)),
 
                 // new Segment(new Point(10, -5), new Point(20, -20)), // sector not free
@@ -503,14 +503,11 @@ public class App {
             Point tangent_b3p = Helpers.findFirstTangencyAlongRay(u, v, t, obstacle, ray_angle, bp, bpcp, bpt);
 
             if (tangent_b3p != null) {
-                System.out
-                        .println("Found tangent center at distance from bp: " + Helpers.pointDistance(tangent_b3p, bp));
 
-                // We want the point FURTHEST from bp (closest to u) - first tangency
+                // we want the point FURTHEST from bp (closest to u) - first tangency
                 if (Helpers.pointDistance(tangent_b3p, bp) > Helpers.pointDistance(b3p, bp)) {
                     b3p = tangent_b3p;
                     b3p_sector_radius = Helpers.pointDistance(b3p, t);
-                    System.out.println("Updated b3p to tangent point");
                 }
             }
         }

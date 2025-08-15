@@ -329,35 +329,37 @@ public class Helpers {
         Point earliest_center = null;
         double earliest_t_param = Double.MAX_VALUE;
 
-        // Case 1: Check if circle can pass through an endpoint and target t
-        Point endpoint_center1 = findCenterPassingThroughTwoPoints(u, dx, dy, t, p1);
-        Point endpoint_center2 = findCenterPassingThroughTwoPoints(u, dx, dy, t, p2);
+        // // Case 1: Check if circle can pass through an endpoint and target t
+        // Point endpoint_center1 = findCenterPassingThroughTwoPoints(u, dx, dy, t, p1);
+        // Point endpoint_center2 = findCenterPassingThroughTwoPoints(u, dx, dy, t, p2);
 
-        if (endpoint_center1 != null) {
-            double t_param1 = getTParamOnRay(u, dx, dy, endpoint_center1);
-            if (t_param1 > 0 && t_param1 < earliest_t_param) {
-                // Verify the endpoint is actually in the sector when this circle is at this
-                // position
-                if (isValidTangencyConfiguration(endpoint_center1, t, p1, bpcp, bpt, obstacle)) {
-                    earliest_t_param = t_param1;
-                    earliest_center = endpoint_center1;
-                }
-            }
-        }
+        // if (endpoint_center1 != null) {
+        // double t_param1 = getTParamOnRay(u, dx, dy, endpoint_center1);
+        // if (t_param1 > 0 && t_param1 < earliest_t_param) {
+        // // Verify the endpoint is actually in the sector when this circle is at this
+        // // position
+        // if (isValidTangencyConfiguration(endpoint_center1, t, p1, bpcp, bpt,
+        // obstacle)) {
+        // earliest_t_param = t_param1;
+        // earliest_center = endpoint_center1;
+        // }
+        // }
+        // }
 
-        if (endpoint_center2 != null) {
-            double t_param2 = getTParamOnRay(u, dx, dy, endpoint_center2);
-            if (t_param2 > 0 && t_param2 < earliest_t_param) {
-                // Verify the endpoint is actually in the sector when this circle is at this
-                // position
-                if (isValidTangencyConfiguration(endpoint_center2, t, p2, bpcp, bpt, obstacle)) {
-                    earliest_t_param = t_param2;
-                    earliest_center = endpoint_center2;
-                }
-            }
-        }
+        // if (endpoint_center2 != null) {
+        // double t_param2 = getTParamOnRay(u, dx, dy, endpoint_center2);
+        // if (t_param2 > 0 && t_param2 < earliest_t_param) {
+        // // Verify the endpoint is actually in the sector when this circle is at this
+        // // position
+        // if (isValidTangencyConfiguration(endpoint_center2, t, p2, bpcp, bpt,
+        // obstacle)) {
+        // earliest_t_param = t_param2;
+        // earliest_center = endpoint_center2;
+        // }
+        // }
+        // }
 
-        // Case 2: Check if circle can be tangent to the line segment
+        // check if circle can be tangent to the line segment
         Point tangent_center = findTangentCenterToSegment(u, dx, dy, t, obstacle);
 
         if (tangent_center != null) {
@@ -628,7 +630,12 @@ public class Helpers {
 
         // adjust all points
         for (PolarPoint p : polars) {
+            if (p.getAngle() - angle_difference < 0){
+                p.setAngle(p.getAngle() - angle_difference + (2 * Math.PI));
+            }
+            else{
             p.setAngle(p.getAngle() - angle_difference);
+            }
         }
         closest_point.setAngle(0);
 
