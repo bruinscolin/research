@@ -2,11 +2,13 @@
 public class PolarPoint {
     private double r;
     private double angle;
+    private int index;
+
 
     public PolarPoint(double r, double angle) {
         this.r = r;
         this.angle = angle;
-
+        this.index = -1;
     }
 
     public void set(double r, double angle) {
@@ -33,6 +35,14 @@ public class PolarPoint {
 
         }
         return false;
+    }
+
+    public void setIndex(int i){
+        this.index = i;
+    }
+
+    public int getIndex(){
+        return this.index;
     }
 
     public void print() {

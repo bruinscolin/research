@@ -605,20 +605,29 @@ public class Helpers {
 
     // takes in origin point, list of cartesian endpoints
     // returns polar endpoints in sorted CCW order
-    public static List<PolarPoint> preProcessPolygon(Point origin, List<Point> endpoints) {
+    public static List<PolarSegment> preProcessPolygon(Point origin, Segment[] obstacles) {
 
-        // convert all to polars with respect to GIVEN origin
-        List<PolarPoint> polars = new ArrayList<>();
+        // convert all to polarEndpoints with respect to GIVEN origin
+        List<PolarPoint> polarEndpoints = new ArrayList<>();
 
-        for (Point p : endpoints) {
-            polars.add(p.toPolar(origin));
+        for (int i = 0; i < obstacles.length; i++){
+            Segment s = obstacles[i];
+
+            PolarPoint p1 = s.getP1().toPolar(origin);
+            PolarPoint p2 = s.getP2().toPolar(origin);
+            
+            p1.setIndex(i);
+            p2.setIndex(i);
+
+            polarEndpoints.add(p1);
+            polarEndpoints.add(p2);
 
         }
 
         // find closest point
         PolarPoint closest_point = new PolarPoint(Double.POSITIVE_INFINITY, 0);
 
-        for (PolarPoint p : polars) {
+        for (PolarPoint p : polarEndpoints) {
             if (p.getR() < closest_point.getR()) {
                 closest_point = new PolarPoint(p.getR(), p.getAngle());
             }
@@ -629,7 +638,7 @@ public class Helpers {
         double angle_difference = closest_point.getAngle();
 
         // adjust all points
-        for (PolarPoint p : polars) {
+        for (PolarPoint p : polarEndpoints) {
             if (p.getAngle() - angle_difference < 0){
                 p.setAngle(p.getAngle() - angle_difference + (2 * Math.PI));
             }
@@ -637,17 +646,83 @@ public class Helpers {
             p.setAngle(p.getAngle() - angle_difference);
             }
         }
+        
+        // adjust points in polar segments
         closest_point.setAngle(0);
 
         // sort them by CCW
-        Collections.sort(polars, (p1, p2) -> Double.compare(p1.getAngle(), p2.getAngle()));
-        return polars;
+        Collections.sort(polarEndpoints, (p1, p2) -> Double.compare(p1.getAngle(), p2.getAngle()));
+
+
+        // interate over endpoints, make new segments for polygon
+        List <PolarSegment> polygon = new ArrayList<>();
+        
+        // int i = 0;
+
+        // while (i < polarEndpoints.size()){
+        //     
+        //     int j = i + 1;
+        //     // if (i == polarEndpoints.size() - 1){
+        //     //     j = 0;
+
+        //     // }
+        //     // PolarSegment current = new PolarSegment(polarEndpoints.get(i), polarEndpoints.get(j));
+
+
+        //     while ( j < polarEndpoints.size() ){
+        //         PolarPoint p1 = polarEndpoints.get(i);
+        //         PolarPoint p2 = polarEndpoints.get(j);
+
+        //         if (p1.getIndex() == p2.getIndex()){
+
+        //             PolarSegment current = new PolarSegment(polarEndpoints.get(i), polarEndpoints.get(j));
+
+        //             polygon.add(current);
+        //             i = j;
+        //             break;
+
+        //         }
+        //         else{
+        //             // hits endpoint that is farther away
+        //             if (p1.getR() < p2.getR()){
+        //                 // do nothing
+        //             }
+        //             if (p1.getR() > p2.getR()){
+        //                 PolarPoint cutoff = new PolarPoint(p1.getR(), p2.getAngle());
+
+        //                 PolarSegment current = new PolarSegment(polarEndpoints.get(i), cutoff);
+        //                 polygon.add(current);
+
+        //                 i = j - 1;
+        //                 // i = j;
+
+        //                 break;
+        //             }
+        //         }
+
+        //         j += 1;
+        //     }
+
+        //     i += 1;
+
+        // }
+
+
+        // diff approach
+        int i = 0;
+        
+        // check for full segment coverage
+        // for (int i = 0; i < obstacles.length; i ++){
+
+
+        // }
+        return polygon;
     }
 
-    public static List<PolarPoint> ProcessPolygon(List<PolarPoint> polars) {
+    public static List<PolarPoint> ProcessPolygon(List<PolarPoint> polarEndpoints) {
         List<PolarPoint> stack = new ArrayList<>();
 
-        for (PolarPoint p : polars) {
+        for (PolarPoint p : polarEndpoints) {
             if (stack.isEmpty()) {
                 stack.add(p);
 

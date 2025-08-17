@@ -43,7 +43,7 @@ public class App {
             endpoints.add(s.getP1());
             endpoints.add(s.getP2());
         }
-
+        
         // Each ray originates at v and passes through a point u ∈ V \ {v}
         // for (int i = 0; i < endpoints.size(); i++) {
 
@@ -56,11 +56,30 @@ public class App {
         int i = 2; // 2
         int j = 0; // 0
 
+
+
+
+
         Point u = endpoints.get(i);
         Point v = endpoints.get(j);
 
         u.print();
         v.print();
+
+
+
+
+        List <PolarSegment> polygon = Helpers.preProcessPolygon(u, o);
+        
+        List <Segment> polygon_segments = new ArrayList<>();
+
+        for (PolarSegment seg : polygon){
+            Segment s = seg.toSegment(u);
+            polygon_segments.add(s);
+
+            dc.addSegment(s);
+
+        }
 
         // calculate ray from u -> v
         double x_dist = v.getX() - u.getX(); // both could be negative
