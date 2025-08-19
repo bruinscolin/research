@@ -16,6 +16,10 @@ public class App {
                 new Segment(new Point(-230, -125), new Point(-100, -250)),
                 new Segment(new Point(-300, -150), new Point(-250, -50)),
 
+                new Segment(new Point(-200, -125), new Point(-50, -250)),
+                new Segment(new Point(200, 100), new Point(200, -100)),
+                new Segment(new Point(-200, 100), new Point(-200, -200)),
+
                 new Segment(new Point(20, 0), new Point(50, -30)),
                 new Segment(new Point(15, 0), new Point(50, -30)),
                 // new Segment(new Point(45, -20 ), new Point(45, -50)),
@@ -43,7 +47,7 @@ public class App {
             endpoints.add(s.getP1());
             endpoints.add(s.getP2());
         }
-        
+
         // Each ray originates at v and passes through a point u ∈ V \ {v}
         // for (int i = 0; i < endpoints.size(); i++) {
 
@@ -56,28 +60,21 @@ public class App {
         int i = 2; // 2
         int j = 0; // 0
 
-
-
-
-
         Point u = endpoints.get(i);
         Point v = endpoints.get(j);
 
         u.print();
         v.print();
 
+        List<Segment> polygon = Helpers.preProcessPolygon(u, o);
 
+        List<Segment> polygon_segments = new ArrayList<>();
 
+        for (Segment seg : polygon) {
+            // Segment s = seg.toSegment(u);
+            polygon_segments.add(seg);
 
-        List <PolarSegment> polygon = Helpers.preProcessPolygon(u, o);
-        
-        List <Segment> polygon_segments = new ArrayList<>();
-
-        for (PolarSegment seg : polygon){
-            Segment s = seg.toSegment(u);
-            polygon_segments.add(s);
-
-            dc.addSegment(s);
+            dc.addSegment(seg);
 
         }
 

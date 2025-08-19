@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+
 import java.util.*;
 
 public class Helpers {
@@ -605,148 +606,210 @@ public class Helpers {
 
     // takes in origin point, list of cartesian endpoints
     // returns polar endpoints in sorted CCW order
-    public static List<PolarSegment> preProcessPolygon(Point origin, Segment[] obstacles) {
+    public static List<Segment> preProcessPolygon(Point origin, Segment[] obstacles) {
 
-        // convert all to polarEndpoints with respect to GIVEN origin
-        List<PolarPoint> polarEndpoints = new ArrayList<>();
+        List<Segment> lines = new ArrayList<>();
 
-        for (int i = 0; i < obstacles.length; i++){
+        for (int i = 0; i < obstacles.length; i++) {
             Segment s = obstacles[i];
 
-            PolarPoint p1 = s.getP1().toPolar(origin);
-            PolarPoint p2 = s.getP2().toPolar(origin);
-            
-            p1.setIndex(i);
-            p2.setIndex(i);
-
-            polarEndpoints.add(p1);
-            polarEndpoints.add(p2);
-
-        }
-
-        // find closest point
-        PolarPoint closest_point = new PolarPoint(Double.POSITIVE_INFINITY, 0);
-
-        for (PolarPoint p : polarEndpoints) {
-            if (p.getR() < closest_point.getR()) {
-                closest_point = new PolarPoint(p.getR(), p.getAngle());
+            if (!origin.equals(s.getP1()) && !origin.equals(s.getP2())) {
+                lines.add(s);
             }
         }
-
-        // align closest point on X-axis
-
-        double angle_difference = closest_point.getAngle();
-
-        // adjust all points
-        for (PolarPoint p : polarEndpoints) {
-            if (p.getAngle() - angle_difference < 0){
-                p.setAngle(p.getAngle() - angle_difference + (2 * Math.PI));
-            }
-            else{
-            p.setAngle(p.getAngle() - angle_difference);
-            }
-        }
-        
-        // adjust points in polar segments
-        closest_point.setAngle(0);
-
-        // sort them by CCW
-        Collections.sort(polarEndpoints, (p1, p2) -> Double.compare(p1.getAngle(), p2.getAngle()));
-
 
         // interate over endpoints, make new segments for polygon
-        List <PolarSegment> polygon = new ArrayList<>();
-        
-        // int i = 0;
+        List<Segment> polygon = new ArrayList<>();
 
-        // while (i < polarEndpoints.size()){
-        //     
-        //     int j = i + 1;
-        //     // if (i == polarEndpoints.size() - 1){
-        //     //     j = 0;
+        List<Segment> current = new ArrayList<>();
 
-        //     // }
-        //     // PolarSegment current = new PolarSegment(polarEndpoints.get(i), polarEndpoints.get(j));
+        for (Segment s : lines) {
+            current.add(s);
+        }
 
+        // for (int i = 0; i < obstacles.length; i++) {
+        for (int i = 0; i < lines.size(); i++) {
+            // Segment s = obstacles[i];
+            Segment s = lines.get(i);
+            List<Point> segmentPolygon = generatePolygon(s, origin);
 
-        //     while ( j < polarEndpoints.size() ){
-        //         PolarPoint p1 = polarEndpoints.get(i);
-        //         PolarPoint p2 = polarEndpoints.get(j);
+            List<Segment> temp = new ArrayList<>();
 
-        //         if (p1.getIndex() == p2.getIndex()){
+            for (int j = 0; j < current.size(); j++) {
+                List<Segment> subtractedSegment = polygonSubtract(segmentPolygon, current.get(j));
+                temp.addAll(subtractedSegment);
+            }
 
-        //             PolarSegment current = new PolarSegment(polarEndpoints.get(i), polarEndpoints.get(j));
+            current.clear();
+            for (Segment segment : temp) {
+                current.add(segment);
 
-        //             polygon.add(current);
-        //             i = j;
-        //             break;
+            }
+            // polygon.addAll(temp);
+            // return temp;
+            // return current;
+        }
+        // return polygon;
+        return current;
+    }
 
-        //         }
-        //         else{
-        //             // hits endpoint that is farther away
-        //             if (p1.getR() < p2.getR()){
-        //                 // do nothing
-        //             }
-        //             if (p1.getR() > p2.getR()){
-        //                 PolarPoint cutoff = new PolarPoint(p1.getR(), p2.getAngle());
+    // generates a four-sided polygon based off a line segment
+    // public static List<Point> generatePolygon(Segment s, Point origin) {
 
-        //                 PolarSegment current = new PolarSegment(polarEndpoints.get(i), cutoff);
-        //                 polygon.add(current);
+    // PolarPoint polarP1 = s.getP1().toPolar(origin);
+    // PolarPoint polarP2 = s.getP2().toPolar(origin);
 
-        //                 i = j - 1;
-        //                 // i = j;
+    // double p1_angle = polarP1.getAngle();
+    // double p2_angle = polarP2.getAngle();
 
-        //                 break;
-        //             }
-        //         }
+    // double p1_x = s.getP1().getX() + 10000 * Math.cos(p1_angle);
+    // double p1_y = s.getP1().getY() + 10000 * Math.sin(p1_angle);
 
-        //         j += 1;
-        //     }
+    // double p2_x = s.getP2().getX() + 10000 * Math.cos(p2_angle);
+    // double p2_y = s.getP2().getY() + 10000 * Math.sin(p2_angle);
 
-        //     i += 1;
+    // List<Point> polygon = new ArrayList<>();
 
-        // }
+    // // polygon connects CCW
+    // polygon.add(s.getP1());
 
+    // polygon.add(s.getP2());
 
-        // diff approach
-        int i = 0;
-        
-        // check for full segment coverage
-        // for (int i = 0; i < obstacles.length; i ++){
+    // polygon.add(new Point(p2_x, p2_y));
 
+    // polygon.add(new Point(p1_x, p1_y));
+    // return polygon;
+    // }
 
-        // }
+    public static List<Point> generatePolygon(Segment s, Point origin) {
+        Point p1 = s.getP1();
+        Point p2 = s.getP2();
+
+        // Calculate direction vectors from origin through each endpoint
+        double dx1 = p1.getX() - origin.getX();
+        double dy1 = p1.getY() - origin.getY();
+        double dx2 = p2.getX() - origin.getX();
+        double dy2 = p2.getY() - origin.getY();
+
+        // Normalize and extend far away
+        double len1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+        double len2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+
+        double extendedX1 = p1.getX() + (dx1 / len1) * 10000;
+        double extendedY1 = p1.getY() + (dy1 / len1) * 10000;
+        double extendedX2 = p2.getX() + (dx2 / len2) * 10000;
+        double extendedY2 = p2.getY() + (dy2 / len2) * 10000;
+
+        List<Point> polygon = new ArrayList<>();
+        polygon.add(p1);
+        polygon.add(p2);
+        polygon.add(new Point(extendedX2, extendedY2));
+        polygon.add(new Point(extendedX1, extendedY1));
         return polygon;
     }
 
-    public static List<PolarPoint> ProcessPolygon(List<PolarPoint> polarEndpoints) {
-        List<PolarPoint> stack = new ArrayList<>();
+    // given a polygon and a line segment, subtract polygon from line segment
+    public static List<Segment> polygonSubtract(List<Point> polygon, Segment q) {
 
-        for (PolarPoint p : polarEndpoints) {
-            if (stack.isEmpty()) {
-                stack.add(p);
+        Point p1 = q.getP1();
+        Point p2 = q.getP2();
 
+        // check if line is apart of polygon
+        if ((p1.equals(polygon.get(0)) && p2.equals(polygon.get(1)))
+                || (p1.equals(polygon.get(1)) && p2.equals(polygon.get(0)))) {
+            List<Segment> r = new ArrayList<>();
+            r.add(q);
+            return r;
+        }
+
+        boolean inside1 = isPointInPolygon(polygon, p1);
+        boolean inside2 = isPointInPolygon(polygon, p2);
+
+        List<Point> intersections = new ArrayList<>();
+
+        for (int i = 0; i < polygon.size(); i++) {
+            Point pA = polygon.get(i);
+            Point pB = polygon.get((i + 1) % polygon.size());
+            Segment edge = new Segment(pA, pB);
+
+            if (segment_segment_intersect(edge, q)) {
+                Point inter = getSegmentSegmentIntersectPoint(q, edge);
+                intersections.add(inter);
             }
-            PolarPoint top = stack.remove(stack.size() - 1);
 
-            // if new point has same angle as top
-            if (top.getAngle() == p.getAngle()) {
-                if (top.getR() > p.getR()) {
-                    stack.add(p);
+        }
 
-                } else {
-                    stack.add(top);
+        List<Segment> result = new ArrayList<>();
 
-                }
+        // 1. Items do not intersect, return unchanged segment
+
+        if (!inside1 && !inside2 && intersections.isEmpty()) {
+            result.add(q);
+            return result;
+        }
+        // 2. polygon cuts off whole segment
+
+        if (inside1 && inside2) {
+            return result;
+        }
+        // 3. polygon cuts off one side of segment, return one short segment
+        if (intersections.size() == 1) {
+            Point inter = intersections.get(0);
+            if (inside1) {
+                // keep outside portion
+                result.add(new Segment(inter, p2));
             } else {
-                // different angle, add to stack
-                stack.add(top);
-                stack.add(p);
-
+                result.add(new Segment(p1, inter));
             }
         }
 
-        return stack;
+        // 4. polygon cuts middle of segment, return two outer edges
+        else if (intersections.size() == 2) {
+
+            Point i1 = intersections.get(0);
+            Point i2 = intersections.get(1);
+
+            // Order them along the segment
+            double d1 = pointDistance(p1, i1);
+            double d2 = pointDistance(p1, i2);
+
+            Point near = (d1 < d2 ? i1 : i2);
+            Point far = (d1 < d2 ? i2 : i1);
+
+            result.add(new Segment(p1, near));
+            result.add(new Segment(far, p2));
+        }
+
+        return result;
+    }
+
+    // given an n-sided polygon, return if point q is inside of it
+    public static boolean isPointInPolygon(List<Point> polygon, Point q) {
+        // polygon connects in CCW order
+
+        List<Double> results = new ArrayList<>();
+
+        for (int i = 0; i < polygon.size(); i++) {
+            Point s1 = polygon.get(i);
+            Point s2 = polygon.get((i + 1) % polygon.size());
+
+            results.add(orientationTest(s1, s2, q));
+        }
+
+        boolean all_negative = true;
+        boolean all_positive = true;
+
+        for (Double num : results) {
+            if (num < 0) {
+                all_positive = false;
+
+            }
+            if (num > 0) {
+                all_negative = false;
+
+            }
+        }
+        return all_negative || all_positive;
     }
 
 }
