@@ -606,7 +606,7 @@ public class Helpers {
 
     // takes in origin point, list of cartesian endpoints
     // returns polar endpoints in sorted CCW order
-    public static List<Segment> preProcessPolygon(Point origin, Segment[] obstacles) {
+    public static List<Segment> preProcessPolygon(Point origin, Segment[] obstacles, DrawingCanvas dc) {
 
         List<Segment> lines = new ArrayList<>();
 
@@ -619,69 +619,33 @@ public class Helpers {
         }
 
         // interate over endpoints, make new segments for polygon
-        List<Segment> polygon = new ArrayList<>();
 
-        List<Segment> current = new ArrayList<>();
+        Map<Integer, List<Segment>> segmentMap = new HashMap<>();
 
+        segmentMap.put(0, new ArrayList<>());
         for (Segment s : lines) {
-            current.add(s);
+            // current.add(s);
+            segmentMap.get(0).add(s);
         }
 
-        // for (int i = 0; i < obstacles.length; i++) {
         for (int i = 0; i < lines.size(); i++) {
-            // Segment s = obstacles[i];
             Segment s = lines.get(i);
-            List<Point> segmentPolygon = generatePolygon(s, origin);
+            List<Point> segmentPolygon = generatePolygon(s, origin, dc);
 
-            List<Segment> temp = new ArrayList<>();
+            segmentMap.put(i + 1, new ArrayList<>());
 
-            for (int j = 0; j < current.size(); j++) {
-                List<Segment> subtractedSegment = polygonSubtract(segmentPolygon, current.get(j));
-                temp.addAll(subtractedSegment);
+            for (int j = 0; j < segmentMap.get(i).size(); j++) {
+                List<Segment> subtractedSegment = polygonSubtract(segmentPolygon, segmentMap.get(i).get(j), dc);
+                segmentMap.get(i + 1).addAll(subtractedSegment);
             }
-
-            current.clear();
-            for (Segment segment : temp) {
-                current.add(segment);
-
-            }
-            // polygon.addAll(temp);
-            // return temp;
-            // return current;
         }
-        // return polygon;
-        return current;
+        return segmentMap.get(lines.size());
+        // return segmentMap.get(3);
     }
 
     // generates a four-sided polygon based off a line segment
-    // public static List<Point> generatePolygon(Segment s, Point origin) {
 
-    // PolarPoint polarP1 = s.getP1().toPolar(origin);
-    // PolarPoint polarP2 = s.getP2().toPolar(origin);
-
-    // double p1_angle = polarP1.getAngle();
-    // double p2_angle = polarP2.getAngle();
-
-    // double p1_x = s.getP1().getX() + 10000 * Math.cos(p1_angle);
-    // double p1_y = s.getP1().getY() + 10000 * Math.sin(p1_angle);
-
-    // double p2_x = s.getP2().getX() + 10000 * Math.cos(p2_angle);
-    // double p2_y = s.getP2().getY() + 10000 * Math.sin(p2_angle);
-
-    // List<Point> polygon = new ArrayList<>();
-
-    // // polygon connects CCW
-    // polygon.add(s.getP1());
-
-    // polygon.add(s.getP2());
-
-    // polygon.add(new Point(p2_x, p2_y));
-
-    // polygon.add(new Point(p1_x, p1_y));
-    // return polygon;
-    // }
-
-    public static List<Point> generatePolygon(Segment s, Point origin) {
+    public static List<Point> generatePolygon(Segment s, Point origin, DrawingCanvas dc) {
         Point p1 = s.getP1();
         Point p2 = s.getP2();
 
@@ -705,11 +669,21 @@ public class Helpers {
         polygon.add(p2);
         polygon.add(new Point(extendedX2, extendedY2));
         polygon.add(new Point(extendedX1, extendedY1));
+
+        for (int j = 0; j < polygon.size(); j++) {
+            Point pf = polygon.get(j);
+            Point pt = polygon.get((j + 1) % polygon.size()); // Wrap around to first
+
+            Segment seg = new Segment(pf, pt);
+
+            // dc.addSegment(seg);
+        }
+
         return polygon;
     }
 
     // given a polygon and a line segment, subtract polygon from line segment
-    public static List<Segment> polygonSubtract(List<Point> polygon, Segment q) {
+    public static List<Segment> polygonSubtract(List<Point> polygon, Segment q, DrawingCanvas dc) {
 
         Point p1 = q.getP1();
         Point p2 = q.getP2();
@@ -749,16 +723,21 @@ public class Helpers {
         }
         // 2. polygon cuts off whole segment
 
-        if (inside1 && inside2) {
+        else if (inside1 && inside2) {
             return result;
         }
+
         // 3. polygon cuts off one side of segment, return one short segment
         if (intersections.size() == 1) {
             Point inter = intersections.get(0);
             if (inside1) {
                 // keep outside portion
+                // dc.addSegment(new Segment(inter, p2));
+
                 result.add(new Segment(inter, p2));
             } else {
+
+                // dc.addSegment(new Segment(p1, inter));
                 result.add(new Segment(p1, inter));
             }
         }
@@ -778,6 +757,9 @@ public class Helpers {
 
             result.add(new Segment(p1, near));
             result.add(new Segment(far, p2));
+
+            // dc.addSegment(new Segment(p1, near));
+            // dc.addSegment(new Segment(far, p2));
         }
 
         return result;
@@ -807,6 +789,8 @@ public class Helpers {
             if (num > 0) {
                 all_negative = false;
 
+            } else {
+                return false;
             }
         }
         return all_negative || all_positive;

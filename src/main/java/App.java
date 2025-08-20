@@ -16,13 +16,13 @@ public class App {
                 new Segment(new Point(-230, -125), new Point(-100, -250)),
                 new Segment(new Point(-300, -150), new Point(-250, -50)),
 
-                new Segment(new Point(-200, -125), new Point(-50, -250)),
+                // new Segment(new Point(-200, -125), new Point(-50, -250)),
                 new Segment(new Point(200, 100), new Point(200, -100)),
-                new Segment(new Point(-200, 100), new Point(-200, -200)),
 
                 new Segment(new Point(20, 0), new Point(50, -30)),
                 new Segment(new Point(15, 0), new Point(50, -30)),
-                // new Segment(new Point(45, -20 ), new Point(45, -50)),
+
+                new Segment(new Point(-200, 100), new Point(-200, -200)),
 
                 // new Segment(new Point(10, -5), new Point(20, -20)), // sector not free
                 // new Segment(new Point(20, -20), new Point(40, 0)), // sector, arc not free
@@ -66,7 +66,7 @@ public class App {
         u.print();
         v.print();
 
-        List<Segment> polygon = Helpers.preProcessPolygon(u, o);
+        List<Segment> polygon = Helpers.preProcessPolygon(u, o, dc);
 
         List<Segment> polygon_segments = new ArrayList<>();
 
