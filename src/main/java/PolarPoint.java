@@ -4,7 +4,6 @@ public class PolarPoint {
     private double angle;
     private int index;
 
-
     public PolarPoint(double r, double angle) {
         this.r = r;
         this.angle = angle;
@@ -37,17 +36,23 @@ public class PolarPoint {
         return false;
     }
 
-    public void setIndex(int i){
+    public void setIndex(int i) {
         this.index = i;
     }
 
-    public int getIndex(){
+    public int getIndex() {
         return this.index;
     }
 
     public void print() {
         System.out.println("R-length: " + this.r + "Angle: " + this.angle);
 
+    }
+
+    public Point toCartesian() {
+        double x = this.r * Math.cos(this.angle);
+        double y = this.r * Math.sin(this.angle);
+        return new Point(x, y);
     }
 
 }

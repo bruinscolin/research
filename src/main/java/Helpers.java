@@ -796,4 +796,386 @@ public class Helpers {
         return all_negative || all_positive;
     }
 
+    // get segment for each angle
+
+    public static List<List<Object>> getSegmentRange(Point origin, Segment[] obstacles) {
+        List<PolarPoint> polarEndpoints = new ArrayList<>();
+
+        // converts endpoints to polar points
+        for (int i = 0; i < obstacles.length; i++) {
+            Segment s = obstacles[i];
+
+            Point p1 = s.getP1();
+            Point p2 = s.getP2();
+
+            PolarPoint polar_p1 = p1.toPolar(origin);
+            PolarPoint polar_p2 = p2.toPolar(origin);
+
+            polar_p1.setIndex(i);
+            polar_p2.setIndex(i);
+
+            polarEndpoints.add(polar_p1);
+            polarEndpoints.add(polar_p2);
+        }
+
+        // sort by angle
+        Collections.sort(polarEndpoints, (p1, p2) -> Double.compare(p1.getAngle(), p2.getAngle()));
+
+        // check to see if any segments cross postive x-axis
+
+        // go over each endpoint
+
+        PolarPoint current = null;
+        PolarPoint second_closest = null;
+        PolarPoint third_closest = null;
+
+        PolarPoint next = null;
+
+        // arr[0] = start of angle range
+        // arr[1] = end of angle range
+        // arr[2] = segment id
+
+        double start_angle = 0.0;
+        double end_angle = 0.0;
+
+        // if a-axis not free
+        if (current != null) {
+            // do
+        }
+
+        // x-axis is free
+        else {
+            start_angle = 0.0;
+
+        }
+        List<List<Object>> segment_ranges = new ArrayList<>();
+
+        current = polarEndpoints.get(0);
+
+        for (int i = 1; i < polarEndpoints.size(); i++) {
+            next = polarEndpoints.get(i);
+
+            // if segment is finishing
+            if (current.getIndex() == next.getIndex()) {
+                end_angle = next.getAngle();
+                segment_ranges.add(List.of(start_angle, end_angle, current.getIndex()));
+
+                // next closest becomes the current point
+                if (second_closest != null) {
+                    current = second_closest;
+                    start_angle = current.getAngle();
+
+                    // third closest becomes 2nd closest;
+                    if (third_closest != null) {
+                        second_closest = third_closest;
+                        third_closest = null;
+
+                    }
+                }
+
+            }
+
+            // if new segment is hit
+            else {
+
+                // if new point is closer, end angle range and start new
+                Segment current_segment = obstacles[current.getIndex()];
+                Segment origin_new = new Segment(origin, next.toCartesian());
+
+                // make line segment from origin to new point
+                // if current is closer than new, it will intersect it
+
+                if (segment_segment_intersect(current_segment, origin_new)) {
+
+                    end_angle = next.getAngle();
+                    segment_ranges.add(List.of(start_angle, end_angle, current.getIndex()));
+
+                    start_angle = end_angle;
+
+                    // current segment is still behind new segment, shift 2nd and 3rd
+                    third_closest = second_closest;
+                    second_closest = current;
+                    current = next;
+
+                }
+
+                // if new segment is farther away
+                else {
+
+                    // if no stored 'backup' point
+                    if (second_closest == null) {
+                        second_closest = next;
+                    } else {
+
+                        // if new point is closer than all backups
+                        if (next.getR() < second_closest.getR()) {
+                            second_closest = next;
+
+                            // if farther than 2nd, no stored 3rd
+                        } else if (third_closest == null) {
+                            third_closest = next;
+                            // if farther than 2nd, closer than old 3rd
+                        } else if (next.getR() < third_closest.getR()) {
+                            third_closest = next;
+
+                        }
+                    }
+                }
+            }
+        }
+
+        return segment_ranges;
+    }
+
+    // claude code
+    public static List<List<Object>> getSegmentRange2(Point origin, Segment[] obstacles) {
+        List<PolarPoint> polarEndpoints = new ArrayList<>();
+
+        // Convert endpoints to polar points and normalize angles
+        for (int i = 0; i < obstacles.length; i++) {
+            Segment s = obstacles[i];
+            Point p1 = s.getP1();
+            Point p2 = s.getP2();
+
+            PolarPoint polar_p1 = p1.toPolar(origin);
+            PolarPoint polar_p2 = p2.toPolar(origin);
+
+            // Normalize angles to [0, 2π)
+            double angle1 = normalizeAngle(polar_p1.getAngle());
+            double angle2 = normalizeAngle(polar_p2.getAngle());
+
+            polar_p1.setAngle(angle1);
+            polar_p2.setAngle(angle2);
+
+            polar_p1.setIndex(i);
+            polar_p2.setIndex(i);
+
+            polarEndpoints.add(polar_p1);
+            polarEndpoints.add(polar_p2);
+        }
+
+        // Sort by angle
+        Collections.sort(polarEndpoints, (p1, p2) -> Double.compare(p1.getAngle(), p2.getAngle()));
+
+        List<List<Object>> segmentRanges = new ArrayList<>();
+        Set<Integer> activeSegments = new HashSet<>();
+        int second_closest = -1;
+
+        // Initialize active segments - check which segments cross the positive x-axis
+        // (angle 0)
+        for (int i = 0; i < obstacles.length; i++) {
+            if (segmentCrossesPositiveXAxis(obstacles[i], origin)) {
+                activeSegments.add(i);
+
+            }
+        }
+
+        PolarPoint currentPoint = polarEndpoints.get(0);
+        double currentAngle = currentPoint.getAngle();
+
+        // if nothing crosses x-axis, fill in first gap
+        if (activeSegments.isEmpty()) {
+            segmentRanges.add(List.of(0, currentAngle, -1));
+
+        }
+
+        activeSegments.add(currentPoint.getIndex());
+
+        for (int i = 1; i < polarEndpoints.size(); i++) {
+            PolarPoint point = polarEndpoints.get(i);
+            double nextAngle = point.getAngle();
+
+            if (activeSegments.isEmpty()) {
+
+                segmentRanges.add(List.of(currentAngle, nextAngle, -1));
+
+            }
+
+            if (activeSegments.contains(point.getIndex())) {
+                activeSegments.remove(point.getIndex());
+            } else {
+                activeSegments.add(point.getIndex());
+            }
+
+            // if new point is the ending of current point
+            if (currentPoint.getIndex() == point.getIndex()) {
+                segmentRanges.add(List.of(currentAngle, nextAngle, point.getIndex()));
+
+                // Find new current point from active segments
+                currentAngle = nextAngle;
+
+            } else {
+
+                Segment origin_new = new Segment(origin, point.toCartesian());
+
+                // new point is NOT closer
+                if (segment_segment_intersect(origin_new, obstacles[currentPoint.getIndex()])) {
+                    // handle
+
+                }
+                // new point IS closer
+                else {
+
+                    segmentRanges.add(List.of(currentAngle, nextAngle, currentPoint.getIndex()));
+
+                    second_closest = currentPoint.getIndex();
+                    currentPoint = point;
+                    currentAngle = nextAngle;
+
+                }
+            }
+
+            // currentAngle = nextAngle;
+        }
+
+        return segmentRanges;
+
+    }
+
+    public static List<List<Object>> getSegmentRange3(Point origin, Segment[] obstacles) {
+        List<PolarPoint> polarEndpoints = new ArrayList<>();
+
+        // Convert endpoints to polar points and normalize angles
+        for (int i = 0; i < obstacles.length; i++) {
+            Segment s = obstacles[i];
+            Point p1 = s.getP1();
+            Point p2 = s.getP2();
+
+            PolarPoint polar_p1 = p1.toPolar(origin);
+            PolarPoint polar_p2 = p2.toPolar(origin);
+
+            // Normalize angles to [0, 2π)
+            double angle1 = normalizeAngle(polar_p1.getAngle());
+            double angle2 = normalizeAngle(polar_p2.getAngle());
+
+            polar_p1.setAngle(angle1);
+            polar_p2.setAngle(angle2);
+
+            polar_p1.setIndex(i);
+            polar_p2.setIndex(i);
+
+            polarEndpoints.add(polar_p1);
+            polarEndpoints.add(polar_p2);
+        }
+
+        // Sort by angle
+        Collections.sort(polarEndpoints, (p1, p2) -> Double.compare(p1.getAngle(), p2.getAngle()));
+
+        List<List<Object>> segmentRanges = new ArrayList<>();
+        Set<Integer> activeSegments = new HashSet<>();
+        // Initialize min heap
+        MidpointDistanceMinHeap closestSegments = new MidpointDistanceMinHeap(origin, obstacles);
+
+        // Initialize active segments - check which segments cross the positive x-axis
+        // (angle 0)
+        for (int i = 0; i < obstacles.length; i++) {
+            if (segmentCrossesPositiveXAxis(obstacles[i], origin)) {
+                activeSegments.add(i);
+                closestSegments.add(i); // Add to heap as well
+            }
+        }
+
+        double currentAngle = 0.0;
+
+        // Process each endpoint event
+        for (int i = 0; i < polarEndpoints.size(); i++) {
+            PolarPoint point = polarEndpoints.get(i);
+            double nextAngle = point.getAngle();
+
+            // Set angle range for distance calculations
+            closestSegments.setAngleRange(currentAngle, nextAngle);
+
+            // Add range for the interval we just swept through
+            if (nextAngle > currentAngle) {
+                if (activeSegments.isEmpty()) {
+                    // No segments visible - gap
+                    segmentRanges.add(List.of(currentAngle, nextAngle, -1));
+                } else {
+                    // Get closest segment from heap - O(1)
+                    int closestSegmentId = closestSegments.peek();
+                    segmentRanges.add(List.of(currentAngle, nextAngle, closestSegmentId));
+                }
+            }
+
+            // Update active segments at this angle
+            int segmentId = point.getIndex();
+            if (activeSegments.contains(segmentId)) {
+                // Second endpoint of this segment - remove from active set
+                activeSegments.remove(segmentId);
+                closestSegments.remove(segmentId); // Remove from heap
+            } else {
+                // First endpoint of this segment - add to active set
+                activeSegments.add(segmentId);
+                closestSegments.add(segmentId); // Add to heap
+            }
+
+            currentAngle = nextAngle;
+        }
+
+        // Handle final range from last angle to 2π
+        if (currentAngle < 2 * Math.PI) {
+            closestSegments.setAngleRange(currentAngle, 2 * Math.PI);
+
+            if (activeSegments.isEmpty()) {
+                segmentRanges.add(List.of(currentAngle, 2 * Math.PI, -1));
+            } else {
+                int closestSegmentId = closestSegments.peek();
+                System.out.println("Final range: active segments = " + activeSegments);
+                System.out.println("Heap says closest = " + closestSegmentId);
+                segmentRanges.add(List.of(currentAngle, 2 * Math.PI, closestSegmentId));
+            }
+        }
+
+        // return segmentRanges;
+        List<List<Object>> mergedRanges = new ArrayList<>();
+        if (!segmentRanges.isEmpty()) {
+            List<Object> currentRange = new ArrayList<>(segmentRanges.get(0));
+
+            for (int i = 1; i < segmentRanges.size(); i++) {
+                List<Object> nextRange = segmentRanges.get(i);
+
+                // Check if current and next ranges have the same segment ID
+                if (currentRange.get(2).equals(nextRange.get(2))) {
+                    // Merge by extending the end angle of current range
+                    currentRange.set(1, nextRange.get(1));
+                } else {
+                    // Different segment ID - add current range and start new one
+                    mergedRanges.add(currentRange);
+                    currentRange = new ArrayList<>(nextRange);
+                }
+            }
+            // Don't forget to add the last range
+            mergedRanges.add(currentRange);
+        }
+
+        // Return mergedRanges instead of segmentRanges
+        return mergedRanges;
+    }
+
+    // // Helper method to check if a segment crosses the positive x-axis ray from
+    // // origin
+    private static boolean segmentCrossesPositiveXAxis(Segment seg, Point origin) {
+        Point p1 = seg.getP1();
+        Point p2 = seg.getP2();
+
+        // Translate segment to origin-centered coordinates
+        double x1 = p1.getX() - origin.getX();
+        double y1 = p1.getY() - origin.getY();
+        double x2 = p2.getX() - origin.getX();
+        double y2 = p2.getY() - origin.getY();
+
+        // Check if the segment crosses the positive x-axis
+        // This happens when y1 and y2 have different signs and the intersection point
+        // has positive x
+        if (y1 * y2 >= 0) {
+            return false; // Both points on same side of x-axis, no crossing
+        }
+
+        // Find x-coordinate of intersection with x-axis
+        // Using similar triangles: x_intersect = x1 + (x2-x1) * (-y1)/(y2-y1)
+        double xIntersect = x1 + (x2 - x1) * (-y1) / (y2 - y1);
+
+        return xIntersect > 0; // Only positive x-axis crossings count
+    }
+
 }

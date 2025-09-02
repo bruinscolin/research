@@ -33,8 +33,34 @@ public class App {
                 new Segment(new Point(-30, -40), new Point(-40, -50)),
 
         };
-        DrawingCanvas dc = Setup.main(target, obstacles);
-        algo(target, obstacles, dc);
+
+        Segment[] obstacles1 = {
+                new Segment(new Point(5, 3), new Point(2, 5)),
+                new Segment(new Point(-2, 7), new Point(3.5, 7)),
+
+                new Segment(new Point(5, 9), new Point(2, 9)),
+
+                new Segment(new Point(-3, 5), new Point(-3, 1)),
+
+        };
+
+        Segment[] square = {
+                // top
+                new Segment(new Point(-5, 5), new Point(5, 5)),
+                // right
+                new Segment(new Point(5, 5), new Point(5, -5)),
+
+                // left
+                new Segment(new Point(-5, 5), new Point(-5, -5)),
+                // bottom
+                new Segment(new Point(-5, -5), new Point(5, -5)),
+
+                new Segment(new Point(6, 7), new Point(6, -7)),
+
+        };
+
+        DrawingCanvas dc = Setup.main(target, obstacles1);
+        algo(target, square, dc);
 
     }
 
@@ -57,26 +83,27 @@ public class App {
         // continue; // if the u and v are the same, ignore
         // }
 
-        int i = 2; // 2
+        int i = 0; // 2
         int j = 0; // 0
 
         Point u = endpoints.get(i);
         Point v = endpoints.get(j);
 
-        u.print();
-        v.print();
+        // u.print();
+        // v.print();
 
-        List<Segment> polygon = Helpers.preProcessPolygon(u, o, dc);
+        // List<List<Object>> seg_angles = Helpers.getSegmentRange(u, o);
 
-        List<Segment> polygon_segments = new ArrayList<>();
+        List<List<Object>> seg_angles = Helpers.getSegmentRange3(new Point(0, 0), o);
 
-        for (Segment seg : polygon) {
-            // Segment s = seg.toSegment(u);
-            polygon_segments.add(seg);
-
-            dc.addSegment(seg);
-
+        System.out.println("START");
+        for (List<Object> l : seg_angles) {
+            for (int num = 0; num < l.size(); num++) {
+                System.out.println(l.get(num));
+            }
         }
+        System.out.println("DONE");
+        System.exit(1);
 
         // calculate ray from u -> v
         double x_dist = v.getX() - u.getX(); // both could be negative
